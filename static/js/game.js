@@ -241,7 +241,7 @@ class Game {
         );
 
         // Check wall collisions with buffer
-        const buffer = 20; // Reduced buffer to match visible walls better
+        const buffer = 7; // Reduced buffer to better match visible walls
         if (
             Math.abs(gridPos.x) > (this.gridSize/2 - buffer) ||
             Math.abs(gridPos.z) > (this.gridSize/2 - buffer)
