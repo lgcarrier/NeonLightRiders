@@ -49,7 +49,7 @@ class Game {
         const grid = new THREE.GridHelper(this.gridSize, 20, 0xff00ff, 0x00ff9f);
         this.scene.add(grid);
 
-        // Create bikes
+        // Create bikes with more spacing and away from boundaries
         const bikeGeometry = new THREE.BoxGeometry(2, 1, 4);
         const bikeMaterials = [
             new THREE.MeshPhongMaterial({color: 0x00ff9f}),  // Player
@@ -58,12 +58,19 @@ class Game {
             new THREE.MeshPhongMaterial({color: 0xff0000})   // CPU 3
         ];
 
+        const startPositions = [
+            { x: 0, z: 30 },              // Player
+            { x: -20, z: 30 },            // CPU 1
+            { x: 20, z: 30 },             // CPU 2
+            { x: 0, z: 40 }               // CPU 3
+        ];
+
         for (let i = 0; i < 4; i++) {
             const bike = new THREE.Mesh(bikeGeometry, bikeMaterials[i]);
             bike.position.set(
-                (i - 1.5) * 10,
+                startPositions[i].x,
                 0.5,
-                this.gridSize/2 - 10
+                startPositions[i].z
             );
             bike.direction = new THREE.Vector3(0, 0, -1);
             bike.active = true;
@@ -118,17 +125,18 @@ class Game {
     }
 
     checkCollisions(bike) {
-        // Check wall collisions
+        // Check wall collisions with buffer
+        const buffer = 2;
         if (
-            Math.abs(bike.position.x) > this.gridSize/2 ||
-            Math.abs(bike.position.z) > this.gridSize/2
+            Math.abs(bike.position.x) > (this.gridSize/2 - buffer) ||
+            Math.abs(bike.position.z) > (this.gridSize/2 - buffer)
         ) {
             return true;
         }
 
-        // Check trail collisions
+        // Check trail collisions with slightly larger buffer
         for (const trail of this.trails) {
-            if (bike.position.distanceTo(trail.position) < 1.5) {
+            if (bike.position.distanceTo(trail.position) < 2) {
                 return true;
             }
         }
