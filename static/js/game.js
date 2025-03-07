@@ -124,9 +124,15 @@ class Game {
 
     turnLeft(bikeIndex = 0) {
         const bike = this.bikes[bikeIndex];
-        if (!bike.active || Date.now() < bike.turnCooldown) return;
+        if (!bike.active) return;
 
-        const tolerance = 0.5;
+        // Scale tolerance with speed
+        const tolerance = this.speed * 0.4;
+        const cooldownTime = 1000 / (this.speed * 2); // Dynamic cooldown based on speed
+
+        // Only allow turns if cooldown has passed
+        if (Date.now() < bike.turnCooldown) return;
+
         const onGrid = (
             Math.abs(bike.position.x % this.gridCellSize) < tolerance &&
             Math.abs(bike.position.z % this.gridCellSize) < tolerance
@@ -137,16 +143,22 @@ class Game {
             bike.rotateY(Math.PI/2);
             bike.position.x = Math.round(bike.position.x / this.gridCellSize) * this.gridCellSize;
             bike.position.z = Math.round(bike.position.z / this.gridCellSize) * this.gridCellSize;
-            bike.turnCooldown = Date.now() + 100; // Add cooldown to prevent multiple turns
+            bike.turnCooldown = Date.now() + cooldownTime;
             this.audio.playSound('turn');
         }
     }
 
     turnRight(bikeIndex = 0) {
         const bike = this.bikes[bikeIndex];
-        if (!bike.active || Date.now() < bike.turnCooldown) return;
+        if (!bike.active) return;
 
-        const tolerance = 0.5;
+        // Scale tolerance with speed
+        const tolerance = this.speed * 0.4;
+        const cooldownTime = 1000 / (this.speed * 2); // Dynamic cooldown based on speed
+
+        // Only allow turns if cooldown has passed
+        if (Date.now() < bike.turnCooldown) return;
+
         const onGrid = (
             Math.abs(bike.position.x % this.gridCellSize) < tolerance &&
             Math.abs(bike.position.z % this.gridCellSize) < tolerance
@@ -157,7 +169,7 @@ class Game {
             bike.rotateY(-Math.PI/2);
             bike.position.x = Math.round(bike.position.x / this.gridCellSize) * this.gridCellSize;
             bike.position.z = Math.round(bike.position.z / this.gridCellSize) * this.gridCellSize;
-            bike.turnCooldown = Date.now() + 100; // Add cooldown to prevent multiple turns
+            bike.turnCooldown = Date.now() + cooldownTime;
             this.audio.playSound('turn');
         }
     }
