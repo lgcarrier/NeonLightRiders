@@ -50,7 +50,7 @@ class Game {
         this.bikes = [];
         this.trails = [];
         this.ais = [];
-        this.speed = this.gridCellSize; // Increased speed to match grid cell size
+        this.speed = this.gridCellSize; // Speed matches grid cell size
         this.lastTrailPositions = new Map();
 
         // Create grid
