@@ -11,12 +11,12 @@ class Controls {
 
         leftButton.addEventListener('touchstart', (e) => {
             e.preventDefault();
-            this.game.turnLeft();
+            this.game.turnLeft(0); 
         });
 
         rightButton.addEventListener('touchstart', (e) => {
             e.preventDefault();
-            this.game.turnRight();
+            this.game.turnRight(0); 
         });
     }
 
@@ -24,10 +24,10 @@ class Controls {
         document.addEventListener('keydown', (e) => {
             switch(e.key) {
                 case 'ArrowLeft':
-                    this.game.turnLeft();
+                    this.game.turnLeft(0);
                     break;
                 case 'ArrowRight':
-                    this.game.turnRight();
+                    this.game.turnRight(0);
                     break;
             }
         });

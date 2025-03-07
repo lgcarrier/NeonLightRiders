@@ -99,11 +99,38 @@ class Game {
         this.updateCamera();
     }
 
-    updateCamera() {
-        const playerBike = this.bikes[0];
-        const cameraOffset = new THREE.Vector3(0, 40, 50);
-        this.camera.position.copy(playerBike.position).add(cameraOffset);
-        this.camera.lookAt(playerBike.position);
+    turnLeft(bikeIndex = 0) {
+        const bike = this.bikes[bikeIndex];
+        if (!bike.active) return;
+
+        // Only allow turns at grid intersections
+        const onGrid = (
+            Math.abs(bike.position.x % this.gridCellSize) < 0.1 &&
+            Math.abs(bike.position.z % this.gridCellSize) < 0.1
+        );
+
+        if (onGrid) {
+            bike.direction.applyAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI/2);
+            bike.rotateY(Math.PI/2);
+            this.audio.playSound('turn');
+        }
+    }
+
+    turnRight(bikeIndex = 0) {
+        const bike = this.bikes[bikeIndex];
+        if (!bike.active) return;
+
+        // Only allow turns at grid intersections
+        const onGrid = (
+            Math.abs(bike.position.x % this.gridCellSize) < 0.1 &&
+            Math.abs(bike.position.z % this.gridCellSize) < 0.1
+        );
+
+        if (onGrid) {
+            bike.direction.applyAxisAngle(new THREE.Vector3(0, 1, 0), -Math.PI/2);
+            bike.rotateY(-Math.PI/2);
+            this.audio.playSound('turn');
+        }
     }
 
     createTrail(bike) {
@@ -203,6 +230,13 @@ class Game {
             return true;
         }
         return false;
+    }
+
+    updateCamera() {
+        const playerBike = this.bikes[0];
+        const cameraOffset = new THREE.Vector3(0, 40, 50);
+        this.camera.position.copy(playerBike.position).add(cameraOffset);
+        this.camera.lookAt(playerBike.position);
     }
 
     animate() {
