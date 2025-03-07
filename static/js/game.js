@@ -74,21 +74,16 @@ class Game {
 
         for (let i = 0; i < 4; i++) {
             const bike = new THREE.Mesh(bikeGeometry, bikeMaterials[i]);
-
-            // Snap position to grid
             bike.position.set(
                 Math.round(startPositions[i].x / this.gridCellSize) * this.gridCellSize,
                 0.5,
                 Math.round(startPositions[i].z / this.gridCellSize) * this.gridCellSize
             );
-            bike.direction = startPositions[i].direction.clone().normalize(); // Corrected: Use clone before normalize
-
-            // Rotate bike to face its initial direction
+            bike.direction = startPositions[i].direction.clone().normalize();
             const angle = Math.atan2(bike.direction.x, bike.direction.z);
             bike.rotation.y = angle;
-
             bike.active = true;
-            bike.trailStartTime = Date.now() + 1000; // 1 second delay before trails become active
+            bike.trailStartTime = Date.now() + 1000;
             bike.lastGridPosition = bike.position.clone();
             this.bikes.push(bike);
             this.scene.add(bike);
@@ -287,6 +282,9 @@ class Game {
         const timestamp = Date.now();
         console.log(`Animation frame at ${timestamp}`);
 
+        // Request next frame at the start to ensure smooth animation
+        requestAnimationFrame(() => this.animate());
+
         // Update bikes
         for (let i = 0; i < this.bikes.length; i++) {
             const bike = this.bikes[i];
@@ -316,27 +314,10 @@ class Game {
                 active: bike.active
             });
 
-            // Grid snapping
-            const snappedX = Math.round(bike.position.x / this.gridCellSize) * this.gridCellSize;
-            const snappedZ = Math.round(bike.position.z / this.gridCellSize) * this.gridCellSize;
-
-            console.log(`Bike ${i} Grid Snapping:`, {
-                beforeSnap: `x:${bike.position.x.toFixed(2)}, z:${bike.position.z.toFixed(2)}`,
-                afterSnap: `x:${snappedX.toFixed(2)}, z:${snappedZ.toFixed(2)}`,
-                gridCellSize: this.gridCellSize
-            });
-
-            bike.position.x = snappedX;
-            bike.position.z = snappedZ;
-
-            // Temporarily disable trail creation and collision detection for debugging
-            // if (Date.now() > bike.trailStartTime) {
-            //     this.createTrail(bike);
-            // }
-            // if (this.checkCollisions(bike)) {
-            //     this.explodeBike(i);
-            //     if (this.checkGameOver()) return;
-            // }
+            // Create trails but skip collision detection
+            if (Date.now() > bike.trailStartTime) {
+                this.createTrail(bike);
+            }
         }
 
         // Update AI
@@ -349,9 +330,6 @@ class Game {
 
         // Render
         this.renderer.render(this.scene, this.camera);
-
-        // Request next frame after all updates are complete
-        requestAnimationFrame(() => this.animate());
     }
 }
 
