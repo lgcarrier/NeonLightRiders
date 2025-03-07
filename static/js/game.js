@@ -67,13 +67,13 @@ class Game {
         // Create walls
         const walls = [
             // North wall
-            { pos: [0, wallHeight/2, -this.gridSize/2], size: [this.gridSize, wallHeight, 1] },
+            { pos: [0, wallHeight/2, -this.gridSize/2], size: [this.gridSize, wallHeight, 3] },
             // South wall
-            { pos: [0, wallHeight/2, this.gridSize/2], size: [this.gridSize, wallHeight, 1] },
+            { pos: [0, wallHeight/2, this.gridSize/2], size: [this.gridSize, wallHeight, 3] },
             // East wall
-            { pos: [this.gridSize/2, wallHeight/2, 0], size: [1, wallHeight, this.gridSize] },
+            { pos: [this.gridSize/2, wallHeight/2, 0], size: [3, wallHeight, this.gridSize] },
             // West wall
-            { pos: [-this.gridSize/2, wallHeight/2, 0], size: [1, wallHeight, this.gridSize] }
+            { pos: [-this.gridSize/2, wallHeight/2, 0], size: [3, wallHeight, this.gridSize] }
         ];
 
         walls.forEach(wall => {
@@ -241,7 +241,7 @@ class Game {
         );
 
         // Check wall collisions with buffer
-        const buffer = 7; // Reduced buffer to better match visible walls
+        const buffer = 3; // Minimized buffer to eliminate visible gap
         if (
             Math.abs(gridPos.x) > (this.gridSize/2 - buffer) ||
             Math.abs(gridPos.z) > (this.gridSize/2 - buffer)
