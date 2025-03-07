@@ -245,19 +245,29 @@ class Game {
             return true;
         }
 
+        // Improved trail collision detection
+        const trailBuffer = 1.5; // Slightly larger buffer for trail collisions
         for (const trail of this.trails) {
-            if (trail.bikeId === bikeIndex && (now - trail.creationTime) < 1000) {
+            // Skip only very recent trails from the same bike
+            if (trail.bikeId === bikeIndex && (now - trail.creationTime) < 500) {
                 continue;
             }
 
-            if ((now - trail.creationTime) < 500) {
+            // Skip extremely new trails from any bike to prevent false positives
+            if ((now - trail.creationTime) < 100) {
                 continue;
             }
 
-            if (gridPos.distanceTo(trail.position) < this.gridCellSize) {
+            // Check both grid position and actual position for more accurate detection
+            const gridDistance = gridPos.distanceTo(trail.position);
+            const actualDistance = bike.position.distanceTo(trail.position);
+
+            if (gridDistance < this.gridCellSize * trailBuffer || actualDistance < this.gridCellSize * trailBuffer) {
                 console.log(`Bike ${bikeIndex} trail collision:`, {
                     bikePosition: `x:${gridPos.x.toFixed(2)}, z:${gridPos.z.toFixed(2)}`,
                     trailPosition: `x:${trail.position.x.toFixed(2)}, z:${trail.position.z.toFixed(2)}`,
+                    gridDistance: gridDistance.toFixed(2),
+                    actualDistance: actualDistance.toFixed(2),
                     trailAge: now - trail.creationTime,
                     trailOwner: trail.bikeId
                 });
