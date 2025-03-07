@@ -41,15 +41,15 @@ class Game {
 
     setupGame() {
         this.gridSize = 100;
+        this.gridCellSize = 5; // Size of each grid cell
         this.bikes = [];
         this.trails = [];
         this.ais = [];
-        this.speed = 0.3;
-        this.trailSpacing = 2; // Distance between trail segments
-        this.lastTrailPositions = new Map(); // Store last trail position for each bike
+        this.speed = this.gridCellSize / 10; // Speed aligned with grid
+        this.lastTrailPositions = new Map();
 
         // Create grid
-        const grid = new THREE.GridHelper(this.gridSize, 20, 0xff00ff, 0x00ff9f);
+        const grid = new THREE.GridHelper(this.gridSize, this.gridSize / this.gridCellSize, 0xff00ff, 0x00ff9f);
         this.scene.add(grid);
 
         const bikeGeometry = new THREE.BoxGeometry(2, 1, 4);
@@ -61,7 +61,7 @@ class Game {
         ];
 
         // Position bikes at corners with proper spacing from boundaries
-        const cornerOffset = this.gridSize/2 - 15; // Increased safe distance from walls
+        const cornerOffset = Math.floor(this.gridSize/2 / this.gridCellSize) * this.gridCellSize - 15;
         const startPositions = [
             { x: -cornerOffset, z: cornerOffset, direction: new THREE.Vector3(1, 0, -1) },    // Player (top left)
             { x: cornerOffset, z: cornerOffset, direction: new THREE.Vector3(-1, 0, -1) },    // CPU 1 (top right)
@@ -71,10 +71,12 @@ class Game {
 
         for (let i = 0; i < 4; i++) {
             const bike = new THREE.Mesh(bikeGeometry, bikeMaterials[i]);
+
+            // Snap position to grid
             bike.position.set(
-                startPositions[i].x,
+                Math.round(startPositions[i].x / this.gridCellSize) * this.gridCellSize,
                 0.5,
-                startPositions[i].z
+                Math.round(startPositions[i].z / this.gridCellSize) * this.gridCellSize
             );
             bike.direction = startPositions[i].direction.normalize();
 
@@ -84,6 +86,7 @@ class Game {
 
             bike.active = true;
             bike.trailStartTime = Date.now() + 1000; // 1 second delay before trails become active
+            bike.lastGridPosition = bike.position.clone();
             this.bikes.push(bike);
             this.scene.add(bike);
 
@@ -104,58 +107,95 @@ class Game {
     }
 
     createTrail(bike) {
-        // Check if enough distance has been traveled since last trail
-        const lastPos = this.lastTrailPositions.get(bike) || bike.position.clone();
-        const distanceSinceLastTrail = bike.position.distanceTo(lastPos);
+        const currentGridPos = new THREE.Vector3(
+            Math.round(bike.position.x / this.gridCellSize) * this.gridCellSize,
+            0.5,
+            Math.round(bike.position.z / this.gridCellSize) * this.gridCellSize
+        );
 
-        if (distanceSinceLastTrail < this.trailSpacing) {
+        // Only create trail at grid intersections
+        if (currentGridPos.distanceTo(bike.lastGridPosition) < this.gridCellSize / 2) {
             return;
         }
 
-        const trailGeometry = new THREE.BoxGeometry(1, 20, 1);
+        // Create wall segment between last position and current position
+        const trailGeometry = new THREE.BoxGeometry(
+            Math.abs(currentGridPos.x - bike.lastGridPosition.x) || 1,
+            20,
+            Math.abs(currentGridPos.z - bike.lastGridPosition.z) || 1
+        );
+
         const trailMaterial = new THREE.MeshPhongMaterial({
             color: bike.material.color,
             transparent: true,
-            opacity: 0.5
+            opacity: 0.8
         });
+
         const trail = new THREE.Mesh(trailGeometry, trailMaterial);
-        trail.position.copy(bike.position);
+        trail.position.set(
+            (currentGridPos.x + bike.lastGridPosition.x) / 2,
+            0.5,
+            (currentGridPos.z + bike.lastGridPosition.z) / 2
+        );
+
         trail.creationTime = Date.now();
-        trail.bikeId = this.bikes.indexOf(bike); // Store which bike created this trail
+        trail.bikeId = this.bikes.indexOf(bike);
         this.trails.push(trail);
         this.scene.add(trail);
 
-        // Update last trail position
-        this.lastTrailPositions.set(bike, bike.position.clone());
+        bike.lastGridPosition = currentGridPos.clone();
     }
 
     turnLeft(bikeIndex = 0) {
         const bike = this.bikes[bikeIndex];
         if (!bike.active) return;
 
-        bike.direction.applyAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI/2);
-        bike.rotateY(Math.PI/2);
-        this.audio.playSound('turn');
+        // Only allow turns at grid intersections
+        const onGrid = (
+            Math.abs(bike.position.x % this.gridCellSize) < 0.1 &&
+            Math.abs(bike.position.z % this.gridCellSize) < 0.1
+        );
+
+        if (onGrid) {
+            bike.direction.applyAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI/2);
+            bike.rotateY(Math.PI/2);
+            this.audio.playSound('turn');
+        }
     }
 
     turnRight(bikeIndex = 0) {
         const bike = this.bikes[bikeIndex];
         if (!bike.active) return;
 
-        bike.direction.applyAxisAngle(new THREE.Vector3(0, 1, 0), -Math.PI/2);
-        bike.rotateY(-Math.PI/2);
-        this.audio.playSound('turn');
+        // Only allow turns at grid intersections
+        const onGrid = (
+            Math.abs(bike.position.x % this.gridCellSize) < 0.1 &&
+            Math.abs(bike.position.z % this.gridCellSize) < 0.1
+        );
+
+        if (onGrid) {
+            bike.direction.applyAxisAngle(new THREE.Vector3(0, 1, 0), -Math.PI/2);
+            bike.rotateY(-Math.PI/2);
+            this.audio.playSound('turn');
+        }
     }
 
     checkCollisions(bike) {
         const bikeIndex = this.bikes.indexOf(bike);
         const now = Date.now();
 
-        // Check wall collisions with larger buffer
+        // Snap position to grid for collision check
+        const gridPos = new THREE.Vector3(
+            Math.round(bike.position.x / this.gridCellSize) * this.gridCellSize,
+            0.5,
+            Math.round(bike.position.z / this.gridCellSize) * this.gridCellSize
+        );
+
+        // Check wall collisions with buffer
         const buffer = 7;
         if (
-            Math.abs(bike.position.x) > (this.gridSize/2 - buffer) ||
-            Math.abs(bike.position.z) > (this.gridSize/2 - buffer)
+            Math.abs(gridPos.x) > (this.gridSize/2 - buffer) ||
+            Math.abs(gridPos.z) > (this.gridSize/2 - buffer)
         ) {
             return true;
         }
@@ -172,7 +212,7 @@ class Game {
                 continue;
             }
 
-            if (bike.position.distanceTo(trail.position) < 2.5) {
+            if (gridPos.distanceTo(trail.position) < this.gridCellSize) {
                 return true;
             }
         }
@@ -209,6 +249,10 @@ class Game {
 
             // Move bike
             bike.position.add(bike.direction.clone().multiplyScalar(this.speed));
+
+            // Snap to grid
+            bike.position.x = Math.round(bike.position.x / this.gridCellSize) * this.gridCellSize;
+            bike.position.z = Math.round(bike.position.z / this.gridCellSize) * this.gridCellSize;
 
             // Only create trails after initial delay
             if (Date.now() > bike.trailStartTime) {
