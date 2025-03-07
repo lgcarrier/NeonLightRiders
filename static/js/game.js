@@ -6,6 +6,7 @@ class Game {
         this.setupGame();
         this.controls = new Controls(this);
         this.audio = new AudioManager();
+        this.trailsRemainAfterExplosion = true; // New game setting
         console.log('Starting animation loop');
         this.animate();
         console.log('Game initialization completed');
@@ -287,6 +288,20 @@ class Game {
         // Simple explosion effect
         bike.material.opacity = 0.5;
         bike.material.transparent = true;
+
+        // Optionally remove trails
+        if (!this.trailsRemainAfterExplosion) {
+            console.log(`Removing trails for bike ${bikeIndex}`);
+            // Remove all trails belonging to this bike
+            const remainingTrails = this.trails.filter(trail => trail.bikeId !== bikeIndex);
+            // Remove trails from scene
+            this.trails.forEach(trail => {
+                if (trail.bikeId === bikeIndex) {
+                    this.scene.remove(trail);
+                }
+            });
+            this.trails = remainingTrails;
+        }
     }
 
     checkGameOver() {
