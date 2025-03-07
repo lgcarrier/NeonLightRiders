@@ -146,40 +146,6 @@ class Game {
         bike.lastGridPosition = currentGridPos.clone();
     }
 
-    turnLeft(bikeIndex = 0) {
-        const bike = this.bikes[bikeIndex];
-        if (!bike.active) return;
-
-        // Only allow turns at grid intersections
-        const onGrid = (
-            Math.abs(bike.position.x % this.gridCellSize) < 0.1 &&
-            Math.abs(bike.position.z % this.gridCellSize) < 0.1
-        );
-
-        if (onGrid) {
-            bike.direction.applyAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI/2);
-            bike.rotateY(Math.PI/2);
-            this.audio.playSound('turn');
-        }
-    }
-
-    turnRight(bikeIndex = 0) {
-        const bike = this.bikes[bikeIndex];
-        if (!bike.active) return;
-
-        // Only allow turns at grid intersections
-        const onGrid = (
-            Math.abs(bike.position.x % this.gridCellSize) < 0.1 &&
-            Math.abs(bike.position.z % this.gridCellSize) < 0.1
-        );
-
-        if (onGrid) {
-            bike.direction.applyAxisAngle(new THREE.Vector3(0, 1, 0), -Math.PI/2);
-            bike.rotateY(-Math.PI/2);
-            this.audio.playSound('turn');
-        }
-    }
-
     checkCollisions(bike) {
         const bikeIndex = this.bikes.indexOf(bike);
         const now = Date.now();
@@ -247,7 +213,7 @@ class Game {
             const bike = this.bikes[i];
             if (!bike.active) continue;
 
-            // Move bike forward continuously
+            // Always move bike forward
             bike.position.add(bike.direction.clone().multiplyScalar(this.speed));
 
             // Snap to grid

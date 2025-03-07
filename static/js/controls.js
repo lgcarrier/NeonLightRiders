@@ -1,8 +1,6 @@
 class Controls {
     constructor(game) {
         this.game = game;
-        this.touchStartX = 0;
-        this.touchStartY = 0;
         this.setupTouchControls();
         this.setupKeyboardControls();
     }
