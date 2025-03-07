@@ -141,10 +141,11 @@ class Game {
         const bike = this.bikes[bikeIndex];
         if (!bike.active) return;
 
-        // Only allow turns at grid intersections
+        // Only allow turns at grid intersections with more forgiving tolerance
+        const tolerance = 0.5; // Increased tolerance for grid alignment
         const onGrid = (
-            Math.abs(bike.position.x % this.gridCellSize) < 0.1 &&
-            Math.abs(bike.position.z % this.gridCellSize) < 0.1
+            Math.abs(bike.position.x % this.gridCellSize) < tolerance &&
+            Math.abs(bike.position.z % this.gridCellSize) < tolerance
         );
 
         console.log('Turn Left Attempt:', {
@@ -158,6 +159,9 @@ class Game {
             const oldDir = bike.direction.clone();
             bike.direction.applyAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI/2);
             bike.rotateY(Math.PI/2);
+            // Snap to grid after turning
+            bike.position.x = Math.round(bike.position.x / this.gridCellSize) * this.gridCellSize;
+            bike.position.z = Math.round(bike.position.z / this.gridCellSize) * this.gridCellSize;
             console.log('Turn Left Executed:', {
                 oldDirection: `x:${oldDir.x.toFixed(2)}, z:${oldDir.z.toFixed(2)}`,
                 newDirection: `x:${bike.direction.x.toFixed(2)}, z:${bike.direction.z.toFixed(2)}`
@@ -170,10 +174,11 @@ class Game {
         const bike = this.bikes[bikeIndex];
         if (!bike.active) return;
 
-        // Only allow turns at grid intersections
+        // Only allow turns at grid intersections with more forgiving tolerance
+        const tolerance = 0.5; // Increased tolerance for grid alignment
         const onGrid = (
-            Math.abs(bike.position.x % this.gridCellSize) < 0.1 &&
-            Math.abs(bike.position.z % this.gridCellSize) < 0.1
+            Math.abs(bike.position.x % this.gridCellSize) < tolerance &&
+            Math.abs(bike.position.z % this.gridCellSize) < tolerance
         );
 
         console.log('Turn Right Attempt:', {
@@ -187,6 +192,9 @@ class Game {
             const oldDir = bike.direction.clone();
             bike.direction.applyAxisAngle(new THREE.Vector3(0, 1, 0), -Math.PI/2);
             bike.rotateY(-Math.PI/2);
+            // Snap to grid after turning
+            bike.position.x = Math.round(bike.position.x / this.gridCellSize) * this.gridCellSize;
+            bike.position.z = Math.round(bike.position.z / this.gridCellSize) * this.gridCellSize;
             console.log('Turn Right Executed:', {
                 oldDirection: `x:${oldDir.x.toFixed(2)}, z:${oldDir.z.toFixed(2)}`,
                 newDirection: `x:${bike.direction.x.toFixed(2)}, z:${bike.direction.z.toFixed(2)}`
