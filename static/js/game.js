@@ -109,9 +109,21 @@ class Game {
             Math.abs(bike.position.z % this.gridCellSize) < 0.1
         );
 
+        console.log('Turn Left Attempt:', {
+            position: `x:${bike.position.x.toFixed(2)}, z:${bike.position.z.toFixed(2)}`,
+            onGrid: onGrid,
+            modX: (bike.position.x % this.gridCellSize).toFixed(2),
+            modZ: (bike.position.z % this.gridCellSize).toFixed(2)
+        });
+
         if (onGrid) {
+            const oldDir = bike.direction.clone();
             bike.direction.applyAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI/2);
             bike.rotateY(Math.PI/2);
+            console.log('Turn Left Executed:', {
+                oldDirection: `x:${oldDir.x.toFixed(2)}, z:${oldDir.z.toFixed(2)}`,
+                newDirection: `x:${bike.direction.x.toFixed(2)}, z:${bike.direction.z.toFixed(2)}`
+            });
             this.audio.playSound('turn');
         }
     }
@@ -126,9 +138,21 @@ class Game {
             Math.abs(bike.position.z % this.gridCellSize) < 0.1
         );
 
+        console.log('Turn Right Attempt:', {
+            position: `x:${bike.position.x.toFixed(2)}, z:${bike.position.z.toFixed(2)}`,
+            onGrid: onGrid,
+            modX: (bike.position.x % this.gridCellSize).toFixed(2),
+            modZ: (bike.position.z % this.gridCellSize).toFixed(2)
+        });
+
         if (onGrid) {
+            const oldDir = bike.direction.clone();
             bike.direction.applyAxisAngle(new THREE.Vector3(0, 1, 0), -Math.PI/2);
             bike.rotateY(-Math.PI/2);
+            console.log('Turn Right Executed:', {
+                oldDirection: `x:${oldDir.x.toFixed(2)}, z:${oldDir.z.toFixed(2)}`,
+                newDirection: `x:${bike.direction.x.toFixed(2)}, z:${bike.direction.z.toFixed(2)}`
+            });
             this.audio.playSound('turn');
         }
     }
@@ -248,11 +272,33 @@ class Game {
             if (!bike.active) continue;
 
             // Always move bike forward
+            const oldPos = bike.position.clone();
             bike.position.add(bike.direction.clone().multiplyScalar(this.speed));
 
+            // Debug movement
+            if (i === 0) {  // Only log player bike
+                console.log('Bike Movement:', {
+                    oldPosition: `x:${oldPos.x.toFixed(2)}, z:${oldPos.z.toFixed(2)}`,
+                    newPosition: `x:${bike.position.x.toFixed(2)}, z:${bike.position.z.toFixed(2)}`,
+                    direction: `x:${bike.direction.x.toFixed(2)}, z:${bike.direction.z.toFixed(2)}`,
+                    speed: this.speed
+                });
+            }
+
             // Snap to grid
-            bike.position.x = Math.round(bike.position.x / this.gridCellSize) * this.gridCellSize;
-            bike.position.z = Math.round(bike.position.z / this.gridCellSize) * this.gridCellSize;
+            const snappedX = Math.round(bike.position.x / this.gridCellSize) * this.gridCellSize;
+            const snappedZ = Math.round(bike.position.z / this.gridCellSize) * this.gridCellSize;
+
+            if (i === 0) {  // Only log player bike
+                console.log('Grid Snapping:', {
+                    beforeSnap: `x:${bike.position.x.toFixed(2)}, z:${bike.position.z.toFixed(2)}`,
+                    afterSnap: `x:${snappedX.toFixed(2)}, z:${snappedZ.toFixed(2)}`,
+                    gridCellSize: this.gridCellSize
+                });
+            }
+
+            bike.position.x = snappedX;
+            bike.position.z = snappedZ;
 
             // Only create trails after initial delay
             if (Date.now() > bike.trailStartTime) {
