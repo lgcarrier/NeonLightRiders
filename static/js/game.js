@@ -63,10 +63,10 @@ class Game {
         // Position bikes at corners with proper spacing from boundaries
         const cornerOffset = Math.floor(this.gridSize/2 / this.gridCellSize) * this.gridCellSize - 15;
         const startPositions = [
-            { x: -cornerOffset, z: cornerOffset, direction: new THREE.Vector3(1, 0, -1) },    // Player (top left)
-            { x: cornerOffset, z: cornerOffset, direction: new THREE.Vector3(-1, 0, -1) },    // CPU 1 (top right)
-            { x: -cornerOffset, z: -cornerOffset, direction: new THREE.Vector3(1, 0, 1) },    // CPU 2 (bottom left)
-            { x: cornerOffset, z: -cornerOffset, direction: new THREE.Vector3(-1, 0, 1) }     // CPU 3 (bottom right)
+            { x: -cornerOffset, z: cornerOffset, direction: new THREE.Vector3(1, 0, 0) },    // Player (top left) - moving right
+            { x: cornerOffset, z: cornerOffset, direction: new THREE.Vector3(0, 0, 1) },    // CPU 1 (top right) - moving down
+            { x: -cornerOffset, z: -cornerOffset, direction: new THREE.Vector3(0, 0, -1) },    // CPU 2 (bottom left) - moving up
+            { x: cornerOffset, z: -cornerOffset, direction: new THREE.Vector3(-1, 0, 0) }     // CPU 3 (bottom right) - moving left
         ];
 
         for (let i = 0; i < 4; i++) {
