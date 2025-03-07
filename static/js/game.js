@@ -6,10 +6,10 @@ class Game {
         this.controls = new Controls(this);
         this.audio = new AudioManager();
         this.trailsRemainAfterExplosion = true;
-        this.updatePlayerCount();
         this.lastTime = performance.now();
         this.frameCount = 0;
         this.lastFpsUpdate = performance.now();
+        this.deltaTimeBuffer = [];
         this.animate();
     }
 
@@ -110,6 +110,7 @@ class Game {
             bike.active = true;
             bike.trailStartTime = Date.now() + 1000;
             bike.lastGridPosition = bike.position.clone();
+            bike.turnCooldown = 0;
             this.bikes.push(bike);
             this.scene.add(bike);
 
@@ -123,7 +124,7 @@ class Game {
 
     turnLeft(bikeIndex = 0) {
         const bike = this.bikes[bikeIndex];
-        if (!bike.active) return;
+        if (!bike.active || Date.now() < bike.turnCooldown) return;
 
         const tolerance = 0.5;
         const onGrid = (
@@ -136,13 +137,14 @@ class Game {
             bike.rotateY(Math.PI/2);
             bike.position.x = Math.round(bike.position.x / this.gridCellSize) * this.gridCellSize;
             bike.position.z = Math.round(bike.position.z / this.gridCellSize) * this.gridCellSize;
+            bike.turnCooldown = Date.now() + 100; // Add cooldown to prevent multiple turns
             this.audio.playSound('turn');
         }
     }
 
     turnRight(bikeIndex = 0) {
         const bike = this.bikes[bikeIndex];
-        if (!bike.active) return;
+        if (!bike.active || Date.now() < bike.turnCooldown) return;
 
         const tolerance = 0.5;
         const onGrid = (
@@ -155,6 +157,7 @@ class Game {
             bike.rotateY(-Math.PI/2);
             bike.position.x = Math.round(bike.position.x / this.gridCellSize) * this.gridCellSize;
             bike.position.z = Math.round(bike.position.z / this.gridCellSize) * this.gridCellSize;
+            bike.turnCooldown = Date.now() + 100; // Add cooldown to prevent multiple turns
             this.audio.playSound('turn');
         }
     }
@@ -319,18 +322,25 @@ class Game {
         const deltaTime = (currentTime - this.lastTime) / 1000;
         this.lastTime = currentTime;
 
+        // Smooth out delta time to prevent jerky movement
+        this.deltaTimeBuffer.push(deltaTime);
+        if (this.deltaTimeBuffer.length > 5) {
+            this.deltaTimeBuffer.shift();
+        }
+        const smoothDeltaTime = this.deltaTimeBuffer.reduce((a, b) => a + b, 0) / this.deltaTimeBuffer.length;
+
         requestAnimationFrame(() => this.animate());
 
         // Update FPS counter
         this.updateFPS();
 
-        // Update bikes with time-based movement
+        // Update bikes with smoothed time-based movement
         for (let i = 0; i < this.bikes.length; i++) {
             const bike = this.bikes[i];
             if (!bike.active) continue;
 
-            // Move bike forward with delta time
-            const movement = bike.direction.clone().multiplyScalar(this.speed * deltaTime * 60);
+            // Move bike forward with smooth delta time
+            const movement = bike.direction.clone().multiplyScalar(this.speed * smoothDeltaTime * 60);
             bike.position.add(movement);
 
             // Create trails less frequently
