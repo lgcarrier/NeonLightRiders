@@ -24,6 +24,17 @@ body {
     height: 100%;
 }
 
+#radarCanvas {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 150px;
+    height: 150px;
+    background: rgba(0, 0, 0, 0.5);
+    border: 2px solid #ff00ff;
+    border-radius: 5px;
+}
+
 #touch-controls {
     position: absolute;
     bottom: 20px;

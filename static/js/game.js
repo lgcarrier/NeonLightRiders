@@ -6,6 +6,7 @@ class Game {
         this.setupGame();
         this.controls = new Controls(this);
         this.audio = new AudioManager();
+        this.radar = new RadarMap();
         this.trailsRemainAfterExplosion = true;
         this.explosions = [];
         this.updatePlayerCount();
@@ -379,6 +380,9 @@ class Game {
 
         this.explosions = this.explosions.filter(explosion => explosion.update());
 
+        // Update radar before processing bike movements
+        this.radar.update(this.bikes, this.gridSize);
+
         for (let i = 0; i < this.bikes.length; i++) {
             const bike = this.bikes[i];
             if (!bike.active) continue;
@@ -419,7 +423,6 @@ class Game {
         }
 
         this.updateCamera();
-
         this.renderer.render(this.scene, this.camera);
     }
 }
