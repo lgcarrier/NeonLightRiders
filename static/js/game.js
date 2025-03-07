@@ -44,7 +44,9 @@ class Game {
         this.bikes = [];
         this.trails = [];
         this.ais = [];
-        this.speed = 0.3; // Reduced speed
+        this.speed = 0.3;
+        this.trailSpacing = 2; // Distance between trail segments
+        this.lastTrailPositions = new Map(); // Store last trail position for each bike
 
         // Create grid
         const grid = new THREE.GridHelper(this.gridSize, 20, 0xff00ff, 0x00ff9f);
@@ -81,6 +83,7 @@ class Game {
             bike.rotation.y = angle;
 
             bike.active = true;
+            bike.trailStartTime = Date.now() + 1000; // 1 second delay before trails become active
             this.bikes.push(bike);
             this.scene.add(bike);
 
@@ -95,12 +98,20 @@ class Game {
 
     updateCamera() {
         const playerBike = this.bikes[0];
-        const cameraOffset = new THREE.Vector3(0, 40, 50); // Adjusted camera height and distance
+        const cameraOffset = new THREE.Vector3(0, 40, 50);
         this.camera.position.copy(playerBike.position).add(cameraOffset);
         this.camera.lookAt(playerBike.position);
     }
 
     createTrail(bike) {
+        // Check if enough distance has been traveled since last trail
+        const lastPos = this.lastTrailPositions.get(bike) || bike.position.clone();
+        const distanceSinceLastTrail = bike.position.distanceTo(lastPos);
+
+        if (distanceSinceLastTrail < this.trailSpacing) {
+            return;
+        }
+
         const trailGeometry = new THREE.BoxGeometry(1, 20, 1);
         const trailMaterial = new THREE.MeshPhongMaterial({
             color: bike.material.color,
@@ -109,8 +120,13 @@ class Game {
         });
         const trail = new THREE.Mesh(trailGeometry, trailMaterial);
         trail.position.copy(bike.position);
+        trail.creationTime = Date.now();
+        trail.bikeId = this.bikes.indexOf(bike); // Store which bike created this trail
         this.trails.push(trail);
         this.scene.add(trail);
+
+        // Update last trail position
+        this.lastTrailPositions.set(bike, bike.position.clone());
     }
 
     turnLeft(bikeIndex = 0) {
@@ -132,8 +148,11 @@ class Game {
     }
 
     checkCollisions(bike) {
+        const bikeIndex = this.bikes.indexOf(bike);
+        const now = Date.now();
+
         // Check wall collisions with larger buffer
-        const buffer = 7; // Increased buffer zone
+        const buffer = 7;
         if (
             Math.abs(bike.position.x) > (this.gridSize/2 - buffer) ||
             Math.abs(bike.position.z) > (this.gridSize/2 - buffer)
@@ -141,9 +160,19 @@ class Game {
             return true;
         }
 
-        // Check trail collisions with slightly larger buffer
+        // Check trail collisions
         for (const trail of this.trails) {
-            if (bike.position.distanceTo(trail.position) < 3) { // Increased collision distance
+            // Skip trails that belong to this bike and are too new
+            if (trail.bikeId === bikeIndex && (now - trail.creationTime) < 1000) {
+                continue;
+            }
+
+            // Skip very new trails from all bikes to prevent immediate collisions
+            if ((now - trail.creationTime) < 500) {
+                continue;
+            }
+
+            if (bike.position.distanceTo(trail.position) < 2.5) {
                 return true;
             }
         }
@@ -180,7 +209,11 @@ class Game {
 
             // Move bike
             bike.position.add(bike.direction.clone().multiplyScalar(this.speed));
-            this.createTrail(bike);
+
+            // Only create trails after initial delay
+            if (Date.now() > bike.trailStartTime) {
+                this.createTrail(bike);
+            }
 
             // Check collisions
             if (this.checkCollisions(bike)) {
