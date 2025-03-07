@@ -50,12 +50,17 @@ class Game {
         this.bikes = [];
         this.trails = [];
         this.ais = [];
-        this.speed = this.gridCellSize; // Increased speed to match grid cell size
+        this.speed = this.gridCellSize * 1.2; // Increased speed by 20%
         this.lastTrailPositions = new Map();
 
         // Create grid
         const grid = new THREE.GridHelper(this.gridSize, this.gridSize / this.gridCellSize, 0xff00ff, 0x00ff9f);
         this.scene.add(grid);
+
+        // Add fog to the scene for better performance
+        const fogColor = 0x120458; // Match background color
+        this.scene.fog = new THREE.Fog(fogColor, 100, 500); // Start fog at 100 units, fully foggy at 500 units
+        this.renderer.setClearColor(fogColor);
 
         // Create boundary walls
         const wallHeight = 20;
