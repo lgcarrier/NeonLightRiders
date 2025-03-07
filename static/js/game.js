@@ -241,7 +241,7 @@ class Game {
         );
 
         // Check wall collisions with buffer
-        const buffer = 120; // Adjusted buffer for 800x800 grid
+        const buffer = 20; // Reduced buffer to match visible walls better
         if (
             Math.abs(gridPos.x) > (this.gridSize/2 - buffer) ||
             Math.abs(gridPos.z) > (this.gridSize/2 - buffer)
@@ -249,7 +249,11 @@ class Game {
             console.log(`Bike ${bikeIndex} wall collision:`, {
                 position: `x:${gridPos.x.toFixed(2)}, z:${gridPos.z.toFixed(2)}`,
                 gridSize: this.gridSize,
-                buffer: buffer
+                buffer: buffer,
+                distanceToWall: {
+                    x: this.gridSize/2 - Math.abs(gridPos.x),
+                    z: this.gridSize/2 - Math.abs(gridPos.z)
+                }
             });
             return true;
         }
