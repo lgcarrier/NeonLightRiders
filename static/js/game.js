@@ -49,7 +49,6 @@ class Game {
         const grid = new THREE.GridHelper(this.gridSize, 20, 0xff00ff, 0x00ff9f);
         this.scene.add(grid);
 
-        // Create bikes with more spacing and away from boundaries
         const bikeGeometry = new THREE.BoxGeometry(2, 1, 4);
         const bikeMaterials = [
             new THREE.MeshPhongMaterial({color: 0x00ff9f}),  // Player
@@ -58,11 +57,13 @@ class Game {
             new THREE.MeshPhongMaterial({color: 0xff0000})   // CPU 3
         ];
 
+        // Position bikes at corners with proper spacing from boundaries
+        const cornerOffset = this.gridSize/2 - 10; // Safe distance from walls
         const startPositions = [
-            { x: 0, z: 30 },              // Player
-            { x: -20, z: 30 },            // CPU 1
-            { x: 20, z: 30 },             // CPU 2
-            { x: 0, z: 40 }               // CPU 3
+            { x: 0, z: cornerOffset, direction: new THREE.Vector3(0, 0, -1) },              // Player (top center)
+            { x: -cornerOffset, z: -cornerOffset, direction: new THREE.Vector3(1, 0, 1) },  // CPU 1 (bottom left)
+            { x: cornerOffset, z: -cornerOffset, direction: new THREE.Vector3(-1, 0, 1) },  // CPU 2 (bottom right)
+            { x: cornerOffset, z: cornerOffset, direction: new THREE.Vector3(-1, 0, -1) }   // CPU 3 (top right)
         ];
 
         for (let i = 0; i < 4; i++) {
@@ -72,7 +73,12 @@ class Game {
                 0.5,
                 startPositions[i].z
             );
-            bike.direction = new THREE.Vector3(0, 0, -1);
+            bike.direction = startPositions[i].direction.normalize();
+
+            // Rotate bike to face its initial direction
+            const angle = Math.atan2(bike.direction.x, bike.direction.z);
+            bike.rotation.y = angle;
+
             bike.active = true;
             this.bikes.push(bike);
             this.scene.add(bike);
@@ -88,7 +94,7 @@ class Game {
 
     updateCamera() {
         const playerBike = this.bikes[0];
-        const cameraOffset = new THREE.Vector3(0, 5, 10);
+        const cameraOffset = new THREE.Vector3(0, 30, 40);
         this.camera.position.copy(playerBike.position).add(cameraOffset);
         this.camera.lookAt(playerBike.position);
     }
@@ -109,7 +115,7 @@ class Game {
     turnLeft(bikeIndex = 0) {
         const bike = this.bikes[bikeIndex];
         if (!bike.active) return;
-        
+
         bike.direction.applyAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI/2);
         bike.rotateY(Math.PI/2);
         this.audio.playSound('turn');
@@ -118,15 +124,15 @@ class Game {
     turnRight(bikeIndex = 0) {
         const bike = this.bikes[bikeIndex];
         if (!bike.active) return;
-        
+
         bike.direction.applyAxisAngle(new THREE.Vector3(0, 1, 0), -Math.PI/2);
         bike.rotateY(-Math.PI/2);
         this.audio.playSound('turn');
     }
 
     checkCollisions(bike) {
-        // Check wall collisions with buffer
-        const buffer = 2;
+        // Check wall collisions with larger buffer
+        const buffer = 5;
         if (
             Math.abs(bike.position.x) > (this.gridSize/2 - buffer) ||
             Math.abs(bike.position.z) > (this.gridSize/2 - buffer)
@@ -136,7 +142,7 @@ class Game {
 
         // Check trail collisions with slightly larger buffer
         for (const trail of this.trails) {
-            if (bike.position.distanceTo(trail.position) < 2) {
+            if (bike.position.distanceTo(trail.position) < 2.5) {
                 return true;
             }
         }
@@ -148,7 +154,7 @@ class Game {
         const bike = this.bikes[bikeIndex];
         bike.active = false;
         this.audio.playSound('explosion', 0.5);
-        
+
         // Simple explosion effect
         bike.material.opacity = 0.5;
         bike.material.transparent = true;
@@ -198,7 +204,7 @@ class Game {
 // Start game
 document.addEventListener('DOMContentLoaded', () => {
     const game = new Game();
-    
+
     document.getElementById('restart-button').addEventListener('click', () => {
         location.reload();
     });
