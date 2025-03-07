@@ -247,7 +247,7 @@ class Game {
             const bike = this.bikes[i];
             if (!bike.active) continue;
 
-            // Move bike
+            // Move bike forward continuously
             bike.position.add(bike.direction.clone().multiplyScalar(this.speed));
 
             // Snap to grid
