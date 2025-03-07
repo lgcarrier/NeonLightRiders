@@ -50,7 +50,7 @@ class Game {
         this.bikes = [];
         this.trails = [];
         this.ais = [];
-        this.speed = this.gridCellSize * 1.2;
+        this.speed = this.gridCellSize; // Removed 1.2 multiplier to revert to original speed
         this.lastTrailPositions = new Map();
 
         const grid = new THREE.GridHelper(this.gridSize, this.gridSize / this.gridCellSize, 0xff00ff, 0x00ff9f);
