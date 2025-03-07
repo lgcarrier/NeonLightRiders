@@ -44,7 +44,7 @@ class Game {
 
     setupGame() {
         this.gridSize = 100;
-        this.gridCellSize = 5; // Size of each grid cell
+        this.gridCellSize = 1; // Size of each grid cell, smaller to fit more cells
         this.bikes = [];
         this.trails = [];
         this.ais = [];
@@ -55,6 +55,33 @@ class Game {
         const grid = new THREE.GridHelper(this.gridSize, this.gridSize / this.gridCellSize, 0xff00ff, 0x00ff9f);
         this.scene.add(grid);
 
+        // Create boundary walls
+        const wallHeight = 20;
+        const wallMaterial = new THREE.MeshPhongMaterial({
+            color: 0xff00ff,
+            transparent: true,
+            opacity: 0.5
+        });
+
+        // Create walls
+        const walls = [
+            // North wall
+            { pos: [0, wallHeight/2, -this.gridSize/2], size: [this.gridSize, wallHeight, 1] },
+            // South wall
+            { pos: [0, wallHeight/2, this.gridSize/2], size: [this.gridSize, wallHeight, 1] },
+            // East wall
+            { pos: [this.gridSize/2, wallHeight/2, 0], size: [1, wallHeight, this.gridSize] },
+            // West wall
+            { pos: [-this.gridSize/2, wallHeight/2, 0], size: [1, wallHeight, this.gridSize] }
+        ];
+
+        walls.forEach(wall => {
+            const geometry = new THREE.BoxGeometry(...wall.size);
+            const mesh = new THREE.Mesh(geometry, wallMaterial);
+            mesh.position.set(...wall.pos);
+            this.scene.add(mesh);
+        });
+
         const bikeGeometry = new THREE.BoxGeometry(2, 1, 4);
         const bikeMaterials = [
             new THREE.MeshPhongMaterial({color: 0x00ff9f}),  // Player
@@ -64,7 +91,7 @@ class Game {
         ];
 
         // Position bikes at corners with proper spacing from boundaries
-        const cornerOffset = Math.floor(this.gridSize/2 / this.gridCellSize) * this.gridCellSize - 15;
+        const cornerOffset = Math.floor(this.gridSize/2 / this.gridCellSize) * this.gridCellSize - 35; // Increased offset for better spacing
         const startPositions = [
             { x: -cornerOffset, z: cornerOffset, direction: new THREE.Vector3(1, 0, 0) },    // Player (top left) - moving right
             { x: cornerOffset, z: cornerOffset, direction: new THREE.Vector3(0, 0, -1) },    // CPU 1 (top right) - moving down
@@ -213,7 +240,7 @@ class Game {
         );
 
         // Check wall collisions with buffer
-        const buffer = 7;
+        const buffer = 15; // Increased buffer for the larger grid
         if (
             Math.abs(gridPos.x) > (this.gridSize/2 - buffer) ||
             Math.abs(gridPos.z) > (this.gridSize/2 - buffer)
@@ -314,9 +341,15 @@ class Game {
                 active: bike.active
             });
 
-            // Create trails but skip collision detection
+            // Create trails
             if (Date.now() > bike.trailStartTime) {
                 this.createTrail(bike);
+            }
+
+            // Re-enable collision detection with updated boundaries
+            if (this.checkCollisions(bike)) {
+                this.explodeBike(i);
+                if (this.checkGameOver()) return;
             }
         }
 
