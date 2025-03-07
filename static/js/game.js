@@ -1,16 +1,16 @@
 class Game {
     constructor() {
+        console.log('Game initialization started');
         this.setupScene();
         this.setupLights();
         this.setupGame();
         this.controls = new Controls(this);
         this.audio = new AudioManager();
-        this.trailsRemainAfterExplosion = true;
-        this.lastTime = performance.now();
-        this.frameCount = 0;
-        this.lastFpsUpdate = performance.now();
-        this.deltaTimeBuffer = [];
+        this.trailsRemainAfterExplosion = true; // New game setting
+        this.updatePlayerCount();
+        console.log('Starting animation loop');
         this.animate();
+        console.log('Game initialization completed');
     }
 
     setupScene() {
@@ -45,21 +45,19 @@ class Game {
     }
 
     setupGame() {
-        this.gridSize = 800;
-        this.gridCellSize = 2;
+        this.gridSize = 800; // Adjusted grid size
+        this.gridCellSize = 1; // Size of each grid cell, smaller to fit more cells
         this.bikes = [];
         this.trails = [];
         this.ais = [];
-        this.speed = this.gridCellSize; // Removed 1.2 multiplier to revert to original speed
+        this.speed = this.gridCellSize; // Increased speed to match grid cell size
         this.lastTrailPositions = new Map();
 
+        // Create grid
         const grid = new THREE.GridHelper(this.gridSize, this.gridSize / this.gridCellSize, 0xff00ff, 0x00ff9f);
         this.scene.add(grid);
 
-        // Keep background color but remove fog
-        const backgroundColor = 0x120458;
-        this.renderer.setClearColor(backgroundColor);
-
+        // Create boundary walls
         const wallHeight = 20;
         const wallMaterial = new THREE.MeshPhongMaterial({
             color: 0xff00ff,
@@ -67,10 +65,15 @@ class Game {
             opacity: 0.5
         });
 
+        // Create walls
         const walls = [
+            // North wall
             { pos: [0, wallHeight/2, -this.gridSize/2], size: [this.gridSize, wallHeight, 3] },
+            // South wall
             { pos: [0, wallHeight/2, this.gridSize/2], size: [this.gridSize, wallHeight, 3] },
+            // East wall
             { pos: [this.gridSize/2, wallHeight/2, 0], size: [3, wallHeight, this.gridSize] },
+            // West wall
             { pos: [-this.gridSize/2, wallHeight/2, 0], size: [3, wallHeight, this.gridSize] }
         ];
 
@@ -83,18 +86,19 @@ class Game {
 
         const bikeGeometry = new THREE.BoxGeometry(2, 1, 4);
         const bikeMaterials = [
-            new THREE.MeshPhongMaterial({color: 0x00ff9f}),
-            new THREE.MeshPhongMaterial({color: 0xff00ff}),
-            new THREE.MeshPhongMaterial({color: 0x00ffff}),
-            new THREE.MeshPhongMaterial({color: 0xff0000})
+            new THREE.MeshPhongMaterial({color: 0x00ff9f}),  // Player
+            new THREE.MeshPhongMaterial({color: 0xff00ff}),  // CPU 1
+            new THREE.MeshPhongMaterial({color: 0x00ffff}),  // CPU 2
+            new THREE.MeshPhongMaterial({color: 0xff0000})   // CPU 3
         ];
 
-        const cornerOffset = Math.floor(this.gridSize/2 / this.gridCellSize) * this.gridCellSize - 280;
+        // Position bikes at corners with proper spacing from boundaries
+        const cornerOffset = Math.floor(this.gridSize/2 / this.gridCellSize) * this.gridCellSize - 280; // Adjusted offset for 800x800 grid
         const startPositions = [
-            { x: -cornerOffset, z: cornerOffset, direction: new THREE.Vector3(1, 0, 0) },
-            { x: cornerOffset, z: cornerOffset, direction: new THREE.Vector3(0, 0, -1) },
-            { x: -cornerOffset, z: -cornerOffset, direction: new THREE.Vector3(0, 0, 1) },
-            { x: cornerOffset, z: -cornerOffset, direction: new THREE.Vector3(-1, 0, 0) }
+            { x: -cornerOffset, z: cornerOffset, direction: new THREE.Vector3(1, 0, 0) },    // Player (top left) - moving right
+            { x: cornerOffset, z: cornerOffset, direction: new THREE.Vector3(0, 0, -1) },    // CPU 1 (top right) - moving down
+            { x: -cornerOffset, z: -cornerOffset, direction: new THREE.Vector3(0, 0, 1) },    // CPU 2 (bottom left) - moving up
+            { x: cornerOffset, z: -cornerOffset, direction: new THREE.Vector3(-1, 0, 0) }     // CPU 3 (bottom right) - moving left
         ];
 
         for (let i = 0; i < 4; i++) {
@@ -110,15 +114,21 @@ class Game {
             bike.active = true;
             bike.trailStartTime = Date.now() + 1000;
             bike.lastGridPosition = bike.position.clone();
-            bike.turnCooldown = 0;
             this.bikes.push(bike);
             this.scene.add(bike);
+
+            console.log(`Bike ${i} initialized:`, {
+                position: `x:${bike.position.x.toFixed(2)}, z:${bike.position.z.toFixed(2)}`,
+                direction: `x:${bike.direction.x.toFixed(2)}, z:${bike.direction.z.toFixed(2)}`,
+                angle: angle.toFixed(2)
+            });
 
             if (i > 0) {
                 this.ais.push(new AI(this, i));
             }
         }
 
+        // Set camera position
         this.updateCamera();
     }
 
@@ -126,24 +136,27 @@ class Game {
         const bike = this.bikes[bikeIndex];
         if (!bike.active) return;
 
-        // Scale tolerance with speed
-        const tolerance = this.speed * 0.4;
-        const cooldownTime = 1000 / (this.speed * 2); // Dynamic cooldown based on speed
-
-        // Only allow turns if cooldown has passed
-        if (Date.now() < bike.turnCooldown) return;
-
+        // Only allow turns at grid intersections
         const onGrid = (
-            Math.abs(bike.position.x % this.gridCellSize) < tolerance &&
-            Math.abs(bike.position.z % this.gridCellSize) < tolerance
+            Math.abs(bike.position.x % this.gridCellSize) < 0.1 &&
+            Math.abs(bike.position.z % this.gridCellSize) < 0.1
         );
 
+        console.log('Turn Left Attempt:', {
+            position: `x:${bike.position.x.toFixed(2)}, z:${bike.position.z.toFixed(2)}`,
+            onGrid: onGrid,
+            modX: (bike.position.x % this.gridCellSize).toFixed(2),
+            modZ: (bike.position.z % this.gridCellSize).toFixed(2)
+        });
+
         if (onGrid) {
+            const oldDir = bike.direction.clone();
             bike.direction.applyAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI/2);
             bike.rotateY(Math.PI/2);
-            bike.position.x = Math.round(bike.position.x / this.gridCellSize) * this.gridCellSize;
-            bike.position.z = Math.round(bike.position.z / this.gridCellSize) * this.gridCellSize;
-            bike.turnCooldown = Date.now() + cooldownTime;
+            console.log('Turn Left Executed:', {
+                oldDirection: `x:${oldDir.x.toFixed(2)}, z:${oldDir.z.toFixed(2)}`,
+                newDirection: `x:${bike.direction.x.toFixed(2)}, z:${bike.direction.z.toFixed(2)}`
+            });
             this.audio.playSound('turn');
         }
     }
@@ -152,24 +165,27 @@ class Game {
         const bike = this.bikes[bikeIndex];
         if (!bike.active) return;
 
-        // Scale tolerance with speed
-        const tolerance = this.speed * 0.4;
-        const cooldownTime = 1000 / (this.speed * 2); // Dynamic cooldown based on speed
-
-        // Only allow turns if cooldown has passed
-        if (Date.now() < bike.turnCooldown) return;
-
+        // Only allow turns at grid intersections
         const onGrid = (
-            Math.abs(bike.position.x % this.gridCellSize) < tolerance &&
-            Math.abs(bike.position.z % this.gridCellSize) < tolerance
+            Math.abs(bike.position.x % this.gridCellSize) < 0.1 &&
+            Math.abs(bike.position.z % this.gridCellSize) < 0.1
         );
 
+        console.log('Turn Right Attempt:', {
+            position: `x:${bike.position.x.toFixed(2)}, z:${bike.position.z.toFixed(2)}`,
+            onGrid: onGrid,
+            modX: (bike.position.x % this.gridCellSize).toFixed(2),
+            modZ: (bike.position.z % this.gridCellSize).toFixed(2)
+        });
+
         if (onGrid) {
+            const oldDir = bike.direction.clone();
             bike.direction.applyAxisAngle(new THREE.Vector3(0, 1, 0), -Math.PI/2);
             bike.rotateY(-Math.PI/2);
-            bike.position.x = Math.round(bike.position.x / this.gridCellSize) * this.gridCellSize;
-            bike.position.z = Math.round(bike.position.z / this.gridCellSize) * this.gridCellSize;
-            bike.turnCooldown = Date.now() + cooldownTime;
+            console.log('Turn Right Executed:', {
+                oldDirection: `x:${oldDir.x.toFixed(2)}, z:${oldDir.z.toFixed(2)}`,
+                newDirection: `x:${bike.direction.x.toFixed(2)}, z:${bike.direction.z.toFixed(2)}`
+            });
             this.audio.playSound('turn');
         }
     }
@@ -181,10 +197,12 @@ class Game {
             Math.round(bike.position.z / this.gridCellSize) * this.gridCellSize
         );
 
+        // Only create trail at grid intersections
         if (currentGridPos.distanceTo(bike.lastGridPosition) < this.gridCellSize / 2) {
             return;
         }
 
+        // Create wall segment between last position and current position
         const trailGeometry = new THREE.BoxGeometry(
             Math.abs(currentGridPos.x - bike.lastGridPosition.x) || 1,
             20,
@@ -216,30 +234,50 @@ class Game {
         const bikeIndex = this.bikes.indexOf(bike);
         const now = Date.now();
 
+        // Snap position to grid for collision check
         const gridPos = new THREE.Vector3(
             Math.round(bike.position.x / this.gridCellSize) * this.gridCellSize,
             0.5,
             Math.round(bike.position.z / this.gridCellSize) * this.gridCellSize
         );
 
-        const buffer = 3;
+        // Check wall collisions with buffer
+        const buffer = 3; // Minimized buffer to eliminate visible gap
         if (
             Math.abs(gridPos.x) > (this.gridSize/2 - buffer) ||
             Math.abs(gridPos.z) > (this.gridSize/2 - buffer)
         ) {
+            console.log(`Bike ${bikeIndex} wall collision:`, {
+                position: `x:${gridPos.x.toFixed(2)}, z:${gridPos.z.toFixed(2)}`,
+                gridSize: this.gridSize,
+                buffer: buffer,
+                distanceToWall: {
+                    x: this.gridSize/2 - Math.abs(gridPos.x),
+                    z: this.gridSize/2 - Math.abs(gridPos.z)
+                }
+            });
             return true;
         }
 
+        // Check trail collisions
         for (const trail of this.trails) {
+            // Skip trails that belong to this bike and are too new
             if (trail.bikeId === bikeIndex && (now - trail.creationTime) < 1000) {
                 continue;
             }
 
+            // Skip very new trails from all bikes to prevent immediate collisions
             if ((now - trail.creationTime) < 500) {
                 continue;
             }
 
             if (gridPos.distanceTo(trail.position) < this.gridCellSize) {
+                console.log(`Bike ${bikeIndex} trail collision:`, {
+                    bikePosition: `x:${gridPos.x.toFixed(2)}, z:${gridPos.z.toFixed(2)}`,
+                    trailPosition: `x:${trail.position.x.toFixed(2)}, z:${trail.position.z.toFixed(2)}`,
+                    trailAge: now - trail.creationTime,
+                    trailOwner: trail.bikeId
+                });
                 return true;
             }
         }
@@ -252,11 +290,16 @@ class Game {
         bike.active = false;
         this.audio.playSound('explosion', 0.5);
 
+        // Simple explosion effect
         bike.material.opacity = 0.5;
         bike.material.transparent = true;
 
+        // Optionally remove trails
         if (!this.trailsRemainAfterExplosion) {
+            console.log(`Removing trails for bike ${bikeIndex}`);
+            // Remove all trails belonging to this bike
             const remainingTrails = this.trails.filter(trail => trail.bikeId !== bikeIndex);
+            // Remove trails from scene
             this.trails.forEach(trail => {
                 if (trail.bikeId === bikeIndex) {
                     this.scene.remove(trail);
@@ -265,6 +308,7 @@ class Game {
             this.trails = remainingTrails;
         }
 
+        // Update player count after explosion
         this.updatePlayerCount();
     }
 
@@ -279,17 +323,22 @@ class Game {
 
     updateCamera() {
         const playerBike = this.bikes[0];
+
+        // Calculate target camera position behind the bike
         const cameraDistance = 80;
         const cameraHeight = 40;
 
+        // Calculate camera target position based on bike's direction
         const targetPosition = new THREE.Vector3(
             playerBike.position.x - playerBike.direction.x * cameraDistance,
             cameraHeight,
             playerBike.position.z - playerBike.direction.z * cameraDistance
         );
 
+        // Smoothly interpolate camera position
         this.camera.position.lerp(targetPosition, 0.1);
 
+        // Make camera look at bike's position
         const lookAtPosition = new THREE.Vector3(
             playerBike.position.x,
             0,
@@ -303,79 +352,76 @@ class Game {
         document.getElementById('players-value').textContent = activePlayers;
     }
 
-    updateFPS() {
-        this.frameCount++;
-        const now = performance.now();
-        const delta = now - this.lastFpsUpdate;
-
-        if (delta >= 1000) {
-            const fps = Math.round((this.frameCount * 1000) / delta);
-            document.getElementById('fps-value').textContent = fps;
-            this.frameCount = 0;
-            this.lastFpsUpdate = now;
-        }
-    }
-
     restartGame() {
+        // Clear existing game objects
         this.trails.forEach(trail => this.scene.remove(trail));
         this.bikes.forEach(bike => this.scene.remove(bike));
         this.trails = [];
         this.bikes = [];
         this.ais = [];
 
+        // Reset and setup new game
         this.setupGame();
         this.updatePlayerCount();
 
+        // Hide game over screen
         document.getElementById('game-over').classList.add('hidden');
     }
 
     animate() {
-        const currentTime = performance.now();
-        const deltaTime = (currentTime - this.lastTime) / 1000;
-        this.lastTime = currentTime;
+        const timestamp = Date.now();
+        console.log(`Animation frame at ${timestamp}`);
 
-        // Smooth out delta time to prevent jerky movement
-        this.deltaTimeBuffer.push(deltaTime);
-        if (this.deltaTimeBuffer.length > 5) {
-            this.deltaTimeBuffer.shift();
-        }
-        const smoothDeltaTime = this.deltaTimeBuffer.reduce((a, b) => a + b, 0) / this.deltaTimeBuffer.length;
-
+        // Request next frame at the start to ensure smooth animation
         requestAnimationFrame(() => this.animate());
 
-        // Update FPS counter
-        this.updateFPS();
-
-        // Update bikes with smoothed time-based movement
+        // Update bikes
         for (let i = 0; i < this.bikes.length; i++) {
             const bike = this.bikes[i];
             if (!bike.active) continue;
 
-            // Move bike forward with smooth delta time
-            const movement = bike.direction.clone().multiplyScalar(this.speed * smoothDeltaTime * 60);
+            // Debug pre-movement state
+            console.log(`Bike ${i} Pre-Movement:`, {
+                position: `x:${bike.position.x.toFixed(2)}, z:${bike.position.z.toFixed(2)}`,
+                direction: `x:${bike.direction.x.toFixed(2)}, z:${bike.direction.z.toFixed(2)}`,
+                speed: this.speed,
+                active: bike.active,
+                timestamp: timestamp
+            });
+
+            // Always move bike forward
+            const oldPos = bike.position.clone();
+            const movement = bike.direction.clone().multiplyScalar(this.speed);
             bike.position.add(movement);
 
-            // Create trails less frequently
-            if (Date.now() > bike.trailStartTime && 
-                this.frameCount % 2 === 0) {
+            // Debug movement
+            console.log(`Bike ${i} Movement:`, {
+                oldPosition: `x:${oldPos.x.toFixed(2)}, z:${oldPos.z.toFixed(2)}`,
+                newPosition: `x:${bike.position.x.toFixed(2)}, z:${bike.position.z.toFixed(2)}`,
+                movement: `x:${movement.x.toFixed(2)}, z:${movement.z.toFixed(2)}`,
+                direction: `x:${bike.direction.x.toFixed(2)}, z:${bike.direction.z.toFixed(2)}`,
+                speed: this.speed,
+                active: bike.active
+            });
+
+            // Create trails
+            if (Date.now() > bike.trailStartTime) {
                 this.createTrail(bike);
             }
 
-            // Check collisions
+            // Re-enable collision detection with updated boundaries
             if (this.checkCollisions(bike)) {
                 this.explodeBike(i);
                 if (this.checkGameOver()) return;
             }
         }
 
-        // Update AI less frequently
-        if (this.frameCount % 3 === 0) {
-            for (const ai of this.ais) {
-                ai.update();
-            }
+        // Update AI
+        for (const ai of this.ais) {
+            ai.update();
         }
 
-        // Update camera with smoother interpolation
+        // Update camera
         this.updateCamera();
 
         // Render
@@ -387,6 +433,7 @@ class Game {
 document.addEventListener('DOMContentLoaded', () => {
     const game = new Game();
 
+    // Setup restart buttons
     document.getElementById('restart-button').addEventListener('click', () => {
         game.restartGame();
     });
