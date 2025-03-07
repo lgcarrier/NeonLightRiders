@@ -1,11 +1,14 @@
 class Game {
     constructor() {
+        console.log('Game initialization started');
         this.setupScene();
         this.setupLights();
         this.setupGame();
         this.controls = new Controls(this);
         this.audio = new AudioManager();
+        console.log('Starting animation loop');
         this.animate();
+        console.log('Game initialization completed');
     }
 
     setupScene() {
@@ -45,7 +48,7 @@ class Game {
         this.bikes = [];
         this.trails = [];
         this.ais = [];
-        this.speed = this.gridCellSize / 10; // Speed aligned with grid
+        this.speed = this.gridCellSize; // Increased speed to match grid cell size
         this.lastTrailPositions = new Map();
 
         // Create grid
@@ -64,8 +67,8 @@ class Game {
         const cornerOffset = Math.floor(this.gridSize/2 / this.gridCellSize) * this.gridCellSize - 15;
         const startPositions = [
             { x: -cornerOffset, z: cornerOffset, direction: new THREE.Vector3(1, 0, 0) },    // Player (top left) - moving right
-            { x: cornerOffset, z: cornerOffset, direction: new THREE.Vector3(0, 0, 1) },    // CPU 1 (top right) - moving down
-            { x: -cornerOffset, z: -cornerOffset, direction: new THREE.Vector3(0, 0, -1) },    // CPU 2 (bottom left) - moving up
+            { x: cornerOffset, z: cornerOffset, direction: new THREE.Vector3(0, 0, -1) },    // CPU 1 (top right) - moving down
+            { x: -cornerOffset, z: -cornerOffset, direction: new THREE.Vector3(0, 0, 1) },    // CPU 2 (bottom left) - moving up
             { x: cornerOffset, z: -cornerOffset, direction: new THREE.Vector3(-1, 0, 0) }     // CPU 3 (bottom right) - moving left
         ];
 
@@ -78,7 +81,7 @@ class Game {
                 0.5,
                 Math.round(startPositions[i].z / this.gridCellSize) * this.gridCellSize
             );
-            bike.direction = startPositions[i].direction.normalize();
+            bike.direction = startPositions[i].direction.clone().normalize(); // Corrected: Use clone before normalize
 
             // Rotate bike to face its initial direction
             const angle = Math.atan2(bike.direction.x, bike.direction.z);
@@ -89,6 +92,12 @@ class Game {
             bike.lastGridPosition = bike.position.clone();
             this.bikes.push(bike);
             this.scene.add(bike);
+
+            console.log(`Bike ${i} initialized:`, {
+                position: `x:${bike.position.x.toFixed(2)}, z:${bike.position.z.toFixed(2)}`,
+                direction: `x:${bike.direction.x.toFixed(2)}, z:${bike.direction.z.toFixed(2)}`,
+                angle: angle.toFixed(2)
+            });
 
             if (i > 0) {
                 this.ais.push(new AI(this, i));
@@ -214,6 +223,11 @@ class Game {
             Math.abs(gridPos.x) > (this.gridSize/2 - buffer) ||
             Math.abs(gridPos.z) > (this.gridSize/2 - buffer)
         ) {
+            console.log(`Bike ${bikeIndex} wall collision:`, {
+                position: `x:${gridPos.x.toFixed(2)}, z:${gridPos.z.toFixed(2)}`,
+                gridSize: this.gridSize,
+                buffer: buffer
+            });
             return true;
         }
 
@@ -230,6 +244,12 @@ class Game {
             }
 
             if (gridPos.distanceTo(trail.position) < this.gridCellSize) {
+                console.log(`Bike ${bikeIndex} trail collision:`, {
+                    bikePosition: `x:${gridPos.x.toFixed(2)}, z:${gridPos.z.toFixed(2)}`,
+                    trailPosition: `x:${trail.position.x.toFixed(2)}, z:${trail.position.z.toFixed(2)}`,
+                    trailAge: now - trail.creationTime,
+                    trailOwner: trail.bikeId
+                });
                 return true;
             }
         }
@@ -264,52 +284,59 @@ class Game {
     }
 
     animate() {
-        requestAnimationFrame(() => this.animate());
+        const timestamp = Date.now();
+        console.log(`Animation frame at ${timestamp}`);
 
         // Update bikes
         for (let i = 0; i < this.bikes.length; i++) {
             const bike = this.bikes[i];
             if (!bike.active) continue;
 
+            // Debug pre-movement state
+            console.log(`Bike ${i} Pre-Movement:`, {
+                position: `x:${bike.position.x.toFixed(2)}, z:${bike.position.z.toFixed(2)}`,
+                direction: `x:${bike.direction.x.toFixed(2)}, z:${bike.direction.z.toFixed(2)}`,
+                speed: this.speed,
+                active: bike.active,
+                timestamp: timestamp
+            });
+
             // Always move bike forward
             const oldPos = bike.position.clone();
-            bike.position.add(bike.direction.clone().multiplyScalar(this.speed));
+            const movement = bike.direction.clone().multiplyScalar(this.speed);
+            bike.position.add(movement);
 
             // Debug movement
-            if (i === 0) {  // Only log player bike
-                console.log('Bike Movement:', {
-                    oldPosition: `x:${oldPos.x.toFixed(2)}, z:${oldPos.z.toFixed(2)}`,
-                    newPosition: `x:${bike.position.x.toFixed(2)}, z:${bike.position.z.toFixed(2)}`,
-                    direction: `x:${bike.direction.x.toFixed(2)}, z:${bike.direction.z.toFixed(2)}`,
-                    speed: this.speed
-                });
-            }
+            console.log(`Bike ${i} Movement:`, {
+                oldPosition: `x:${oldPos.x.toFixed(2)}, z:${oldPos.z.toFixed(2)}`,
+                newPosition: `x:${bike.position.x.toFixed(2)}, z:${bike.position.z.toFixed(2)}`,
+                movement: `x:${movement.x.toFixed(2)}, z:${movement.z.toFixed(2)}`,
+                direction: `x:${bike.direction.x.toFixed(2)}, z:${bike.direction.z.toFixed(2)}`,
+                speed: this.speed,
+                active: bike.active
+            });
 
-            // Snap to grid
+            // Grid snapping
             const snappedX = Math.round(bike.position.x / this.gridCellSize) * this.gridCellSize;
             const snappedZ = Math.round(bike.position.z / this.gridCellSize) * this.gridCellSize;
 
-            if (i === 0) {  // Only log player bike
-                console.log('Grid Snapping:', {
-                    beforeSnap: `x:${bike.position.x.toFixed(2)}, z:${bike.position.z.toFixed(2)}`,
-                    afterSnap: `x:${snappedX.toFixed(2)}, z:${snappedZ.toFixed(2)}`,
-                    gridCellSize: this.gridCellSize
-                });
-            }
+            console.log(`Bike ${i} Grid Snapping:`, {
+                beforeSnap: `x:${bike.position.x.toFixed(2)}, z:${bike.position.z.toFixed(2)}`,
+                afterSnap: `x:${snappedX.toFixed(2)}, z:${snappedZ.toFixed(2)}`,
+                gridCellSize: this.gridCellSize
+            });
 
             bike.position.x = snappedX;
             bike.position.z = snappedZ;
 
-            // Only create trails after initial delay
-            if (Date.now() > bike.trailStartTime) {
-                this.createTrail(bike);
-            }
-
-            // Check collisions
-            if (this.checkCollisions(bike)) {
-                this.explodeBike(i);
-                if (this.checkGameOver()) return;
-            }
+            // Temporarily disable trail creation and collision detection for debugging
+            // if (Date.now() > bike.trailStartTime) {
+            //     this.createTrail(bike);
+            // }
+            // if (this.checkCollisions(bike)) {
+            //     this.explodeBike(i);
+            //     if (this.checkGameOver()) return;
+            // }
         }
 
         // Update AI
@@ -322,6 +349,9 @@ class Game {
 
         // Render
         this.renderer.render(this.scene, this.camera);
+
+        // Request next frame after all updates are complete
+        requestAnimationFrame(() => this.animate());
     }
 }
 
