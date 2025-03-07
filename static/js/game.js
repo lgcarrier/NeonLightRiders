@@ -46,7 +46,7 @@ class Game {
 
     setupGame() {
         this.gridSize = 800; // Adjusted grid size
-        this.gridCellSize = 1; // Size of each grid cell, smaller to fit more cells
+        this.gridCellSize = 2; // Increased grid cell size for better control
         this.bikes = [];
         this.trails = [];
         this.ais = [];
