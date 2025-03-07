@@ -282,6 +282,22 @@ class Game {
             }
         }
 
+        // Check bike-to-bike collisions
+        for (let i = 0; i < this.bikes.length; i++) {
+            if (i !== bikeIndex && this.bikes[i].active) {
+                const otherBike = this.bikes[i];
+                if (gridPos.distanceTo(otherBike.position) < this.gridCellSize * 2) {
+                    console.log(`Bike ${bikeIndex} collision with bike ${i}:`, {
+                        bikePosition: `x:${gridPos.x.toFixed(2)}, z:${gridPos.z.toFixed(2)}`,
+                        otherBikePosition: `x:${otherBike.position.x.toFixed(2)}, z:${otherBike.position.z.toFixed(2)}`
+                    });
+                    // Explode both bikes
+                    this.explodeBike(i);
+                    return true;
+                }
+            }
+        }
+
         return false;
     }
 
