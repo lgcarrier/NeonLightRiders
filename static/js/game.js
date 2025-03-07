@@ -7,6 +7,7 @@ class Game {
         this.controls = new Controls(this);
         this.audio = new AudioManager();
         this.trailsRemainAfterExplosion = true; // New game setting
+        this.updatePlayerCount();
         console.log('Starting animation loop');
         this.animate();
         console.log('Game initialization completed');
@@ -306,6 +307,9 @@ class Game {
             });
             this.trails = remainingTrails;
         }
+
+        // Update player count after explosion
+        this.updatePlayerCount();
     }
 
     checkGameOver() {
@@ -341,6 +345,27 @@ class Game {
             playerBike.position.z
         );
         this.camera.lookAt(lookAtPosition);
+    }
+
+    updatePlayerCount() {
+        const activePlayers = this.bikes.filter(bike => bike.active).length;
+        document.getElementById('players-value').textContent = activePlayers;
+    }
+
+    restartGame() {
+        // Clear existing game objects
+        this.trails.forEach(trail => this.scene.remove(trail));
+        this.bikes.forEach(bike => this.scene.remove(bike));
+        this.trails = [];
+        this.bikes = [];
+        this.ais = [];
+
+        // Reset and setup new game
+        this.setupGame();
+        this.updatePlayerCount();
+
+        // Hide game over screen
+        document.getElementById('game-over').classList.add('hidden');
     }
 
     animate() {
@@ -408,7 +433,12 @@ class Game {
 document.addEventListener('DOMContentLoaded', () => {
     const game = new Game();
 
+    // Setup restart buttons
     document.getElementById('restart-button').addEventListener('click', () => {
-        location.reload();
+        game.restartGame();
+    });
+
+    document.getElementById('restart-game').addEventListener('click', () => {
+        game.restartGame();
     });
 });
