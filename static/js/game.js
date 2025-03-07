@@ -43,7 +43,7 @@ class Game {
     }
 
     setupGame() {
-        this.gridSize = 100;
+        this.gridSize = 2000; // Increased grid size (100 * 20)
         this.gridCellSize = 1; // Size of each grid cell, smaller to fit more cells
         this.bikes = [];
         this.trails = [];
@@ -91,7 +91,7 @@ class Game {
         ];
 
         // Position bikes at corners with proper spacing from boundaries
-        const cornerOffset = Math.floor(this.gridSize/2 / this.gridCellSize) * this.gridCellSize - 35; // Increased offset for better spacing
+        const cornerOffset = Math.floor(this.gridSize/2 / this.gridCellSize) * this.gridCellSize - 700; // Increased offset for larger grid
         const startPositions = [
             { x: -cornerOffset, z: cornerOffset, direction: new THREE.Vector3(1, 0, 0) },    // Player (top left) - moving right
             { x: cornerOffset, z: cornerOffset, direction: new THREE.Vector3(0, 0, -1) },    // CPU 1 (top right) - moving down
@@ -240,7 +240,7 @@ class Game {
         );
 
         // Check wall collisions with buffer
-        const buffer = 15; // Increased buffer for the larger grid
+        const buffer = 300; // Increased buffer for the larger grid
         if (
             Math.abs(gridPos.x) > (this.gridSize/2 - buffer) ||
             Math.abs(gridPos.z) > (this.gridSize/2 - buffer)
