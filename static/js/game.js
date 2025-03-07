@@ -44,6 +44,7 @@ class Game {
         this.bikes = [];
         this.trails = [];
         this.ais = [];
+        this.speed = 0.3; // Reduced speed
 
         // Create grid
         const grid = new THREE.GridHelper(this.gridSize, 20, 0xff00ff, 0x00ff9f);
@@ -58,12 +59,12 @@ class Game {
         ];
 
         // Position bikes at corners with proper spacing from boundaries
-        const cornerOffset = this.gridSize/2 - 10; // Safe distance from walls
+        const cornerOffset = this.gridSize/2 - 15; // Increased safe distance from walls
         const startPositions = [
-            { x: 0, z: cornerOffset, direction: new THREE.Vector3(0, 0, -1) },              // Player (top center)
-            { x: -cornerOffset, z: -cornerOffset, direction: new THREE.Vector3(1, 0, 1) },  // CPU 1 (bottom left)
-            { x: cornerOffset, z: -cornerOffset, direction: new THREE.Vector3(-1, 0, 1) },  // CPU 2 (bottom right)
-            { x: cornerOffset, z: cornerOffset, direction: new THREE.Vector3(-1, 0, -1) }   // CPU 3 (top right)
+            { x: -cornerOffset, z: cornerOffset, direction: new THREE.Vector3(1, 0, -1) },    // Player (top left)
+            { x: cornerOffset, z: cornerOffset, direction: new THREE.Vector3(-1, 0, -1) },    // CPU 1 (top right)
+            { x: -cornerOffset, z: -cornerOffset, direction: new THREE.Vector3(1, 0, 1) },    // CPU 2 (bottom left)
+            { x: cornerOffset, z: -cornerOffset, direction: new THREE.Vector3(-1, 0, 1) }     // CPU 3 (bottom right)
         ];
 
         for (let i = 0; i < 4; i++) {
@@ -94,7 +95,7 @@ class Game {
 
     updateCamera() {
         const playerBike = this.bikes[0];
-        const cameraOffset = new THREE.Vector3(0, 30, 40);
+        const cameraOffset = new THREE.Vector3(0, 40, 50); // Adjusted camera height and distance
         this.camera.position.copy(playerBike.position).add(cameraOffset);
         this.camera.lookAt(playerBike.position);
     }
@@ -132,7 +133,7 @@ class Game {
 
     checkCollisions(bike) {
         // Check wall collisions with larger buffer
-        const buffer = 5;
+        const buffer = 7; // Increased buffer zone
         if (
             Math.abs(bike.position.x) > (this.gridSize/2 - buffer) ||
             Math.abs(bike.position.z) > (this.gridSize/2 - buffer)
@@ -142,7 +143,7 @@ class Game {
 
         // Check trail collisions with slightly larger buffer
         for (const trail of this.trails) {
-            if (bike.position.distanceTo(trail.position) < 2.5) {
+            if (bike.position.distanceTo(trail.position) < 3) { // Increased collision distance
                 return true;
             }
         }
@@ -178,7 +179,7 @@ class Game {
             if (!bike.active) continue;
 
             // Move bike
-            bike.position.add(bike.direction.clone().multiplyScalar(0.5));
+            bike.position.add(bike.direction.clone().multiplyScalar(this.speed));
             this.createTrail(bike);
 
             // Check collisions
