@@ -300,9 +300,28 @@ class Game {
 
     updateCamera() {
         const playerBike = this.bikes[0];
-        const cameraOffset = new THREE.Vector3(0, 40, 50);
-        this.camera.position.copy(playerBike.position).add(cameraOffset);
-        this.camera.lookAt(playerBike.position);
+
+        // Calculate target camera position behind the bike
+        const cameraDistance = 80;
+        const cameraHeight = 40;
+
+        // Calculate camera target position based on bike's direction
+        const targetPosition = new THREE.Vector3(
+            playerBike.position.x - playerBike.direction.x * cameraDistance,
+            cameraHeight,
+            playerBike.position.z - playerBike.direction.z * cameraDistance
+        );
+
+        // Smoothly interpolate camera position
+        this.camera.position.lerp(targetPosition, 0.1);
+
+        // Make camera look at bike's position
+        const lookAtPosition = new THREE.Vector3(
+            playerBike.position.x,
+            0,
+            playerBike.position.z
+        );
+        this.camera.lookAt(lookAtPosition);
     }
 
     animate() {
