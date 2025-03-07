@@ -56,9 +56,9 @@ class Game {
         const grid = new THREE.GridHelper(this.gridSize, this.gridSize / this.gridCellSize, 0xff00ff, 0x00ff9f);
         this.scene.add(grid);
 
-        const fogColor = 0x120458;
-        this.scene.fog = new THREE.Fog(fogColor, 100, 500);
-        this.renderer.setClearColor(fogColor);
+        // Keep background color but remove fog
+        const backgroundColor = 0x120458;
+        this.renderer.setClearColor(backgroundColor);
 
         const wallHeight = 20;
         const wallMaterial = new THREE.MeshPhongMaterial({
