@@ -57,12 +57,12 @@ class Game {
     }
 
     setupGame() {
-        this.gridSize = 800;
-        this.gridCellSize = 1;
+        this.gridSize = 800; 
+        this.gridCellSize = 1; 
         this.bikes = [];
         this.trails = [];
         this.ais = [];
-        this.speed = this.gridCellSize;
+        this.speed = this.gridCellSize; 
         this.lastTrailPositions = new Map();
 
         const grid = new THREE.GridHelper(this.gridSize, this.gridSize / this.gridCellSize, 0xff00ff, 0x00ff9f);
@@ -76,10 +76,10 @@ class Game {
         });
 
         const walls = [
-            { pos: [0, wallHeight / 2, -this.gridSize / 2], size: [this.gridSize, wallHeight, 3] },
-            { pos: [0, wallHeight / 2, this.gridSize / 2], size: [this.gridSize, wallHeight, 3] },
-            { pos: [this.gridSize / 2, wallHeight / 2, 0], size: [3, wallHeight, this.gridSize] },
-            { pos: [-this.gridSize / 2, wallHeight / 2, 0], size: [3, wallHeight, this.gridSize] }
+            { pos: [0, wallHeight/2, -this.gridSize/2], size: [this.gridSize, wallHeight, 3] },
+            { pos: [0, wallHeight/2, this.gridSize/2], size: [this.gridSize, wallHeight, 3] },
+            { pos: [this.gridSize/2, wallHeight/2, 0], size: [3, wallHeight, this.gridSize] },
+            { pos: [-this.gridSize/2, wallHeight/2, 0], size: [3, wallHeight, this.gridSize] }
         ];
 
         walls.forEach(wall => {
@@ -91,18 +91,18 @@ class Game {
 
         const bikeGeometry = new THREE.BoxGeometry(2, 1, 4);
         const bikeMaterials = [
-            new THREE.MeshPhongMaterial({ color: 0x00ff9f }),
-            new THREE.MeshPhongMaterial({ color: 0xff00ff }),
-            new THREE.MeshPhongMaterial({ color: 0x00ffff }),
-            new THREE.MeshPhongMaterial({ color: 0xff0000 })
+            new THREE.MeshPhongMaterial({color: 0x00ff9f}),  
+            new THREE.MeshPhongMaterial({color: 0xff00ff}),  
+            new THREE.MeshPhongMaterial({color: 0x00ffff}),  
+            new THREE.MeshPhongMaterial({color: 0xff0000})   
         ];
 
-        const cornerOffset = Math.floor(this.gridSize / 2 / this.gridCellSize) * this.gridCellSize - 280;
+        const cornerOffset = Math.floor(this.gridSize/2 / this.gridCellSize) * this.gridCellSize - 280; 
         const startPositions = [
-            { x: -cornerOffset, z: cornerOffset, direction: new THREE.Vector3(1, 0, 0) },
-            { x: cornerOffset, z: cornerOffset, direction: new THREE.Vector3(0, 0, -1) },
-            { x: -cornerOffset, z: -cornerOffset, direction: new THREE.Vector3(0, 0, 1) },
-            { x: cornerOffset, z: -cornerOffset, direction: new THREE.Vector3(-1, 0, 0) }
+            { x: -cornerOffset, z: cornerOffset, direction: new THREE.Vector3(1, 0, 0) },    
+            { x: cornerOffset, z: cornerOffset, direction: new THREE.Vector3(0, 0, -1) },    
+            { x: -cornerOffset, z: -cornerOffset, direction: new THREE.Vector3(0, 0, 1) },    
+            { x: cornerOffset, z: -cornerOffset, direction: new THREE.Vector3(-1, 0, 0) }     
         ];
 
         for (let i = 0; i < 4; i++) {
@@ -118,17 +118,19 @@ class Game {
             bike.active = true;
             bike.trailStartTime = Date.now() + 1000;
             bike.lastGridPosition = bike.position.clone();
-            bike.animations = new BikeAnimations(bike);
             this.bikes.push(bike);
             this.scene.add(bike);
+
+            console.log(`Bike ${i} initialized:`, {
+                position: `x:${bike.position.x.toFixed(2)}, z:${bike.position.z.toFixed(2)}`,
+                direction: `x:${bike.direction.x.toFixed(2)}, z:${bike.direction.z.toFixed(2)}`,
+                angle: angle.toFixed(2)
+            });
 
             if (i > 0) {
                 this.ais.push(new AI(this, i));
             }
         }
-
-        // Store reference to game in scene for particle effects
-        this.scene.userData.game = this;
 
         this.updateCamera();
     }
@@ -151,8 +153,8 @@ class Game {
 
         if (onGrid) {
             const oldDir = bike.direction.clone();
-            bike.direction.applyAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI / 2);
-            bike.rotateY(Math.PI / 2);
+            bike.direction.applyAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI/2);
+            bike.rotateY(Math.PI/2);
             console.log('Turn Left Executed:', {
                 oldDirection: `x:${oldDir.x.toFixed(2)}, z:${oldDir.z.toFixed(2)}`,
                 newDirection: `x:${bike.direction.x.toFixed(2)}, z:${bike.direction.z.toFixed(2)}`
@@ -179,8 +181,8 @@ class Game {
 
         if (onGrid) {
             const oldDir = bike.direction.clone();
-            bike.direction.applyAxisAngle(new THREE.Vector3(0, 1, 0), -Math.PI / 2);
-            bike.rotateY(-Math.PI / 2);
+            bike.direction.applyAxisAngle(new THREE.Vector3(0, 1, 0), -Math.PI/2);
+            bike.rotateY(-Math.PI/2);
             console.log('Turn Right Executed:', {
                 oldDirection: `x:${oldDir.x.toFixed(2)}, z:${oldDir.z.toFixed(2)}`,
                 newDirection: `x:${bike.direction.x.toFixed(2)}, z:${bike.direction.z.toFixed(2)}`
@@ -202,7 +204,7 @@ class Game {
 
         const trailGeometry = new THREE.BoxGeometry(
             Math.abs(currentGridPos.x - bike.lastGridPosition.x) || 1,
-            8,
+            8, 
             Math.abs(currentGridPos.z - bike.lastGridPosition.z) || 1
         );
 
@@ -215,7 +217,7 @@ class Game {
         const trail = new THREE.Mesh(trailGeometry, trailMaterial);
         trail.position.set(
             (currentGridPos.x + bike.lastGridPosition.x) / 2,
-            4,
+            4, 
             (currentGridPos.z + bike.lastGridPosition.z) / 2
         );
 
@@ -234,8 +236,8 @@ class Game {
         // Wall collision check
         const buffer = 3;
         if (
-            Math.abs(bike.position.x) > (this.gridSize / 2 - buffer) ||
-            Math.abs(bike.position.z) > (this.gridSize / 2 - buffer)
+            Math.abs(bike.position.x) > (this.gridSize/2 - buffer) ||
+            Math.abs(bike.position.z) > (this.gridSize/2 - buffer)
         ) {
             return true;
         }
@@ -344,7 +346,7 @@ class Game {
                 // Hide destruction message
                 destructionMsg.classList.remove('visible');
                 destructionMsg.classList.add('hidden');
-            }, 5000);
+            }, 5000); 
         }
 
         this.updatePlayerCount();
@@ -353,11 +355,6 @@ class Game {
     checkGameOver() {
         let activeBikes = this.bikes.filter(bike => bike.active);
         if (activeBikes.length <= 1) {
-            // If there's a winner, trigger victory animation
-            if (activeBikes.length === 1) {
-                const winner = activeBikes[0];
-                winner.animations.victory();
-            }
             document.getElementById('game-over').classList.remove('hidden');
             return true;
         }
@@ -397,9 +394,9 @@ class Game {
         this.trails = [];
         this.bikes = [];
         this.ais = [];
-        this.explosions = [];
-        this.ghostMode = false;
-        this.ghostCameraIndex = 0;
+        this.explosions = []; 
+        this.ghostMode = false; 
+        this.ghostCameraIndex = 0; 
 
         // Hide UI elements
         document.getElementById('switch-camera').classList.remove('visible');
@@ -439,13 +436,6 @@ class Game {
         requestAnimationFrame(() => this.animate());
 
         this.explosions = this.explosions.filter(explosion => explosion.update());
-
-        // Update bike animations
-        this.bikes.forEach(bike => {
-            if (bike.animations) {
-                bike.animations.update();
-            }
-        });
 
         // Update radar before processing bike movements
         this.radar.update(this.bikes, this.gridSize);
