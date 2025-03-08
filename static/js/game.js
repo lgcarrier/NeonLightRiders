@@ -329,17 +329,27 @@ class Game {
             this.trails = remainingTrails;
         }
 
-        // Enable ghost mode if player's bike is destroyed
+        // Show destruction message and delayed ghost mode for player
         if (bikeIndex === 0) {
-            this.ghostMode = true;
-            this.ghostCameraIndex = 0;
-            // Find first active bike to follow
-            const firstActiveBike = this.bikes.findIndex((b, i) => i > 0 && b.active);
-            if (firstActiveBike !== -1) {
-                this.ghostCameraIndex = this.bikes.filter(b => b.active).indexOf(this.bikes[firstActiveBike]);
-            }
-            // Show switch camera button
-            document.getElementById('switch-camera').classList.add('visible');
+            const destructionMsg = document.getElementById('destruction-message');
+            destructionMsg.classList.remove('hidden');
+            destructionMsg.classList.add('visible');
+
+            // Delay ghost mode activation
+            setTimeout(() => {
+                this.ghostMode = true;
+                this.ghostCameraIndex = 0;
+                // Find first active bike to follow
+                const firstActiveBike = this.bikes.findIndex((b, i) => i > 0 && b.active);
+                if (firstActiveBike !== -1) {
+                    this.ghostCameraIndex = this.bikes.filter(b => b.active).indexOf(this.bikes[firstActiveBike]);
+                }
+                // Show switch camera button
+                document.getElementById('switch-camera').classList.add('visible');
+                // Hide destruction message
+                destructionMsg.classList.remove('visible');
+                destructionMsg.classList.add('hidden');
+            }, 5000); // 5 second delay
         }
 
         this.updatePlayerCount();
@@ -391,8 +401,10 @@ class Game {
         this.ghostMode = false; // Reset ghost mode
         this.ghostCameraIndex = 0; // Reset ghost camera index
 
-        // Hide switch camera button
+        // Hide UI elements
         document.getElementById('switch-camera').classList.remove('visible');
+        document.getElementById('destruction-message').classList.remove('visible');
+        document.getElementById('destruction-message').classList.add('hidden');
 
         this.setupGame();
         this.updatePlayerCount();
