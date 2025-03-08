@@ -204,7 +204,7 @@ class Game {
 
         const trailGeometry = new THREE.BoxGeometry(
             Math.abs(currentGridPos.x - bike.lastGridPosition.x) || 1,
-            8, // Reduced height from 20 to 8
+            8, 
             Math.abs(currentGridPos.z - bike.lastGridPosition.z) || 1
         );
 
@@ -217,7 +217,7 @@ class Game {
         const trail = new THREE.Mesh(trailGeometry, trailMaterial);
         trail.position.set(
             (currentGridPos.x + bike.lastGridPosition.x) / 2,
-            4, // Raised position to half the trail height to show only above grid
+            4, 
             (currentGridPos.z + bike.lastGridPosition.z) / 2
         );
 
@@ -233,67 +233,43 @@ class Game {
         const bikeIndex = this.bikes.indexOf(bike);
         const now = Date.now();
 
-        const gridPos = new THREE.Vector3(
-            Math.round(bike.position.x / this.gridCellSize) * this.gridCellSize,
-            0.5,
-            Math.round(bike.position.z / this.gridCellSize) * this.gridCellSize
-        );
-
-        const buffer = 3; 
+        // Wall collision check
+        const buffer = 3;
         if (
-            Math.abs(gridPos.x) > (this.gridSize/2 - buffer) ||
-            Math.abs(gridPos.z) > (this.gridSize/2 - buffer)
+            Math.abs(bike.position.x) > (this.gridSize/2 - buffer) ||
+            Math.abs(bike.position.z) > (this.gridSize/2 - buffer)
         ) {
-            console.log(`Bike ${bikeIndex} wall collision:`, {
-                position: `x:${gridPos.x.toFixed(2)}, z:${gridPos.z.toFixed(2)}`,
-                gridSize: this.gridSize,
-                buffer: buffer,
-                distanceToWall: {
-                    x: this.gridSize/2 - Math.abs(gridPos.x),
-                    z: this.gridSize/2 - Math.abs(gridPos.z)
-                }
-            });
             return true;
         }
 
-        // Improved trail collision detection
-        const trailBuffer = 0.8; // Reduced buffer for more precise collisions
+        // Trail collision check
+        const trailBuffer = 0.5; 
         for (const trail of this.trails) {
-            // Only skip very recent trails from the same bike
-            if (trail.bikeId === bikeIndex && (now - trail.creationTime) < 100) {
+            // Only skip very recent trails from the same bike to prevent self-collision
+            if (trail.bikeId === bikeIndex && (now - trail.creationTime) < 50) {
                 continue;
             }
 
-            // Grid-based collision detection
-            const gridDistance = gridPos.distanceTo(trail.position);
-
-            // Actual position-based collision detection
-            const actualDistance = bike.position.distanceTo(trail.position);
-
-            // Check for collision using both grid and actual position
-            if (gridDistance < this.gridCellSize * trailBuffer || actualDistance < this.gridCellSize * trailBuffer) {
-                console.log(`Bike ${bikeIndex} trail collision:`, {
-                    bikePosition: `x:${gridPos.x.toFixed(2)}, z:${gridPos.z.toFixed(2)}`,
-                    trailPosition: `x:${trail.position.x.toFixed(2)}, z:${trail.position.z.toFixed(2)}`,
-                    gridDistance: gridDistance.toFixed(2),
-                    actualDistance: actualDistance.toFixed(2),
-                    trailAge: now - trail.creationTime,
-                    trailOwner: trail.bikeId
+            // Simple distance-based collision check
+            const distance = bike.position.distanceTo(trail.position);
+            if (distance < this.gridCellSize * trailBuffer) {
+                console.log(`Trail collision detected:`, {
+                    bikePosition: bike.position,
+                    trailPosition: trail.position,
+                    distance: distance,
+                    threshold: this.gridCellSize * trailBuffer
                 });
                 return true;
             }
         }
 
+        // Bike-to-bike collision check
         for (let i = 0; i < this.bikes.length; i++) {
             if (i !== bikeIndex && this.bikes[i].active) {
                 const otherBike = this.bikes[i];
-                if (gridPos.distanceTo(otherBike.position) < this.gridCellSize * 2) {
-                    console.log(`Bike ${bikeIndex} collision with bike ${i}:`, {
-                        bikePosition: `x:${gridPos.x.toFixed(2)}, z:${gridPos.z.toFixed(2)}`,
-                        otherBikePosition: `x:${otherBike.position.x.toFixed(2)}, z:${otherBike.position.z.toFixed(2)}`
-                    });
+                const distance = bike.position.distanceTo(otherBike.position);
+                if (distance < this.gridCellSize * 2) {
                     this.explodeBike(i);
-                    this.explodeBike(bikeIndex); // Explode both bikes
                     return true;
                 }
             }
@@ -347,7 +323,7 @@ class Game {
                 // Hide destruction message
                 destructionMsg.classList.remove('visible');
                 destructionMsg.classList.add('hidden');
-            }, 5000); // 5 second delay
+            }, 5000); 
         }
 
         this.updatePlayerCount();
@@ -395,9 +371,9 @@ class Game {
         this.trails = [];
         this.bikes = [];
         this.ais = [];
-        this.explosions = []; // Clear explosions on restart
-        this.ghostMode = false; // Reset ghost mode
-        this.ghostCameraIndex = 0; // Reset ghost camera index
+        this.explosions = []; 
+        this.ghostMode = false; 
+        this.ghostCameraIndex = 0; 
 
         // Hide UI elements
         document.getElementById('switch-camera').classList.remove('visible');
