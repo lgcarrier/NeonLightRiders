@@ -243,22 +243,41 @@ class Game {
         }
 
         // Trail collision check
-        const trailBuffer = 0.5; // Smaller buffer for more precise collisions
         for (const trail of this.trails) {
-            // Only skip the most recent trail segment from the same bike
-            if (trail.bikeId === bikeIndex && (now - trail.creationTime) < 50) {
+            // Skip only very recent trails from the same bike
+            if (trail.bikeId === bikeIndex && (now - trail.creationTime) < 100) {
                 continue;
             }
 
-            // Check distance to trail
-            const distance = bike.position.distanceTo(trail.position);
-            if (distance < this.gridCellSize * trailBuffer) {
-                console.log(`Trail collision detected:`, {
-                    bikePosition: bike.position,
-                    trailPosition: trail.position,
-                    distance: distance,
-                    threshold: this.gridCellSize * trailBuffer
-                });
+            // Get trail dimensions and orientation
+            const isVertical = trail.scale.z > trail.scale.x;
+            const halfLength = isVertical ? trail.scale.z / 2 : trail.scale.x / 2;
+
+            // Calculate trail endpoints
+            const trailStart = new THREE.Vector3();
+            const trailEnd = new THREE.Vector3();
+
+            if (isVertical) {
+                trailStart.set(trail.position.x, 0, trail.position.z - halfLength);
+                trailEnd.set(trail.position.x, 0, trail.position.z + halfLength);
+            } else {
+                trailStart.set(trail.position.x - halfLength, 0, trail.position.z);
+                trailEnd.set(trail.position.x + halfLength, 0, trail.position.z);
+            }
+
+            // Project bike position onto trail segment
+            const trailVector = trailEnd.clone().sub(trailStart);
+            const bikeToStart = bike.position.clone().sub(trailStart);
+
+            const dot = bikeToStart.dot(trailVector);
+            const trailLengthSq = trailVector.lengthSq();
+            const t = Math.max(0, Math.min(1, dot / trailLengthSq));
+
+            const closestPoint = trailStart.clone().add(trailVector.multiplyScalar(t));
+            const distance = bike.position.distanceTo(closestPoint);
+
+            // Use a smaller buffer for more precise collisions
+            if (distance < 2) {
                 return true;
             }
         }
