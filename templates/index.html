@@ -4,10 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Neon Light Riders</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="../static/css/style.css">
+    <link rel="stylesheet" href="../static/css/menu.css">
 </head>
 <body>
-    <div id="game-container">
+    <div id="game-container" class="hidden">
         <canvas id="gameCanvas"></canvas>
         <canvas id="radarCanvas"></canvas>
         <div id="touch-controls">
@@ -32,12 +33,19 @@
         <button id="switch-camera" class="hidden">Switch Camera</button>
     </div>
 
+    <div id="main-menu" class="main-menu">
+        <h1>Neon Light Riders</h1>
+        <button id="start-game" class="menu-button">Start Game</button>
+        <button id="settings" class="menu-button">Settings</button>
+    </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="{{ url_for('static', filename='js/explosion.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/audio.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/ai.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/controls.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/radar.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/game.js') }}"></script>
+    <script src="../static/js/menu.js"></script>
+    <script src="../static/js/explosion.js"></script>
+    <script src="../static/js/audio.js"></script>
+    <script src="../static/js/ai.js"></script>
+    <script src="../static/js/controls.js"></script>
+    <script src="../static/js/radar.js"></script>
+    <script src="../static/js/game.js"></script>
 </body>
 </html>

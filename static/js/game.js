@@ -1,5 +1,27 @@
 class Game {
     constructor() {
+        this.initialized = false;
+        // Bind event listeners that should exist before initialization
+        this.bindEventListeners();
+    }
+
+    bindEventListeners() {
+        document.getElementById('restart-button').addEventListener('click', () => {
+            this.restartGame();
+        });
+
+        document.getElementById('restart-game').addEventListener('click', () => {
+            this.restartGame();
+        });
+
+        document.getElementById('switch-camera').addEventListener('click', () => {
+            this.cycleGhostCamera();
+        });
+    }
+
+    init() {
+        if (this.initialized) return;
+        this.initialized = true;
         console.log('Game initialization started');
         this.setupScene();
         this.setupLights();
@@ -483,6 +505,9 @@ class Game {
         this.renderer.render(this.scene, this.camera);
     }
 }
+
+// Create a single global game instance
+window.game = new Game();
 
 document.addEventListener('DOMContentLoaded', () => {
     const game = new Game();
