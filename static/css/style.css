@@ -108,3 +108,22 @@ body {
 .restart-visible {
     display: block;
 }
+
+#switch-camera {
+    position: absolute;
+    bottom: 120px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 10px 20px;
+    background: rgba(255, 0, 255, 0.8);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 18px;
+    cursor: pointer;
+    display: none;
+}
+
+#switch-camera.visible {
+    display: block;
+}

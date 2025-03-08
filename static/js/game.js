@@ -338,6 +338,8 @@ class Game {
             if (firstActiveBike !== -1) {
                 this.ghostCameraIndex = this.bikes.filter(b => b.active).indexOf(this.bikes[firstActiveBike]);
             }
+            // Show switch camera button
+            document.getElementById('switch-camera').classList.add('visible');
         }
 
         this.updatePlayerCount();
@@ -388,6 +390,9 @@ class Game {
         this.explosions = []; // Clear explosions on restart
         this.ghostMode = false; // Reset ghost mode
         this.ghostCameraIndex = 0; // Reset ghost camera index
+
+        // Hide switch camera button
+        document.getElementById('switch-camera').classList.remove('visible');
 
         this.setupGame();
         this.updatePlayerCount();
@@ -479,5 +484,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('restart-game').addEventListener('click', () => {
         game.restartGame();
+    });
+
+    // Add switch camera button handler
+    document.getElementById('switch-camera').addEventListener('click', () => {
+        game.cycleGhostCamera();
     });
 });
