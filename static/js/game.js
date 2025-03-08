@@ -9,10 +9,20 @@ class Game {
         this.radar = new RadarMap();
         this.trailsRemainAfterExplosion = true;
         this.explosions = [];
+        this.ghostMode = false;
+        this.ghostCameraIndex = 0;
         this.updatePlayerCount();
         console.log('Starting animation loop');
         this.animate();
         console.log('Game initialization completed');
+
+        // Add ghost camera controls
+        document.addEventListener('keydown', (e) => {
+            if (this.ghostMode && e.key === 'Tab') {
+                e.preventDefault();
+                this.cycleGhostCamera();
+            }
+        });
     }
 
     setupScene() {
@@ -319,6 +329,17 @@ class Game {
             this.trails = remainingTrails;
         }
 
+        // Enable ghost mode if player's bike is destroyed
+        if (bikeIndex === 0) {
+            this.ghostMode = true;
+            this.ghostCameraIndex = 0;
+            // Find first active bike to follow
+            const firstActiveBike = this.bikes.findIndex((b, i) => i > 0 && b.active);
+            if (firstActiveBike !== -1) {
+                this.ghostCameraIndex = this.bikes.filter(b => b.active).indexOf(this.bikes[firstActiveBike]);
+            }
+        }
+
         this.updatePlayerCount();
     }
 
@@ -332,23 +353,23 @@ class Game {
     }
 
     updateCamera() {
-        const playerBike = this.bikes[0];
+        const followedBike = this.getActivePlayerBike();
 
         const cameraDistance = 80;
         const cameraHeight = 40;
 
         const targetPosition = new THREE.Vector3(
-            playerBike.position.x - playerBike.direction.x * cameraDistance,
+            followedBike.position.x - followedBike.direction.x * cameraDistance,
             cameraHeight,
-            playerBike.position.z - playerBike.direction.z * cameraDistance
+            followedBike.position.z - followedBike.direction.z * cameraDistance
         );
 
         this.camera.position.lerp(targetPosition, 0.1);
 
         const lookAtPosition = new THREE.Vector3(
-            playerBike.position.x,
+            followedBike.position.x,
             0,
-            playerBike.position.z
+            followedBike.position.z
         );
         this.camera.lookAt(lookAtPosition);
     }
@@ -365,11 +386,33 @@ class Game {
         this.bikes = [];
         this.ais = [];
         this.explosions = []; // Clear explosions on restart
+        this.ghostMode = false; // Reset ghost mode
+        this.ghostCameraIndex = 0; // Reset ghost camera index
 
         this.setupGame();
         this.updatePlayerCount();
 
         document.getElementById('game-over').classList.add('hidden');
+    }
+
+    cycleGhostCamera() {
+        const activeBikes = this.bikes.filter(bike => bike.active);
+        if (activeBikes.length > 1) {
+            this.ghostCameraIndex = (this.ghostCameraIndex + 1) % activeBikes.length;
+            const followedBike = activeBikes[this.ghostCameraIndex];
+            console.log(`Ghost camera following bike ${this.bikes.indexOf(followedBike)}`);
+        }
+    }
+
+    getActivePlayerBike() {
+        if (!this.ghostMode) {
+            return this.bikes[0];
+        }
+
+        const activeBikes = this.bikes.filter(bike => bike.active);
+        if (activeBikes.length === 0) return this.bikes[0];
+
+        return activeBikes[this.ghostCameraIndex % activeBikes.length];
     }
 
     animate() {
