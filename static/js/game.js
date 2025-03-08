@@ -510,10 +510,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const settingsMenu = document.getElementById('settings-menu');
     const soundToggle = document.getElementById('sound-toggle');
 
-    // Menu button handlers
+    // Start Game button
     document.getElementById('start-game-btn').addEventListener('click', () => {
+        console.log('Start Game clicked');
         mainMenu.classList.add('hidden');
         gameContainer.classList.remove('hidden');
+
         if (!game) {
             game = new Game();
         } else {
@@ -521,12 +523,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Settings button
     document.getElementById('settings-btn').addEventListener('click', () => {
+        console.log('Settings clicked');
         mainMenu.classList.add('hidden');
         settingsMenu.classList.remove('hidden');
     });
 
+    // Back to menu button
     document.getElementById('back-to-menu').addEventListener('click', () => {
+        console.log('Back to Menu clicked');
         settingsMenu.classList.add('hidden');
         mainMenu.classList.remove('hidden');
     });
@@ -540,18 +546,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Game over menu button
     document.getElementById('menu-button').addEventListener('click', () => {
+        console.log('Menu button clicked');
+        if (game) {
+            game.scene.clear();
+            game = null;
+        }
         gameContainer.classList.add('hidden');
         mainMenu.classList.remove('hidden');
     });
 
-    // Restart buttons
+    // Restart button in game over screen
     document.getElementById('restart-button').addEventListener('click', () => {
+        console.log('Restart button clicked');
         if (game) {
             game.restartGame();
         }
     });
 
+    // Restart button during gameplay
     document.getElementById('restart-game').addEventListener('click', () => {
+        console.log('In-game restart clicked');
         if (game) {
             game.restartGame();
         }
@@ -559,6 +573,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Switch camera button
     document.getElementById('switch-camera').addEventListener('click', () => {
+        console.log('Switch camera clicked');
         if (game) {
             game.cycleGhostCamera();
         }

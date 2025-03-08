@@ -152,7 +152,10 @@ body {
     display: block;
 }
 
-/* Add these styles after the existing styles */
+/* Add or update these styles */
+#game-container.hidden {
+    display: none !important;
+}
 
 .menu-overlay {
     position: fixed;
@@ -167,6 +170,10 @@ body {
     z-index: 2000;
 }
 
+.menu-overlay.hidden {
+    display: none !important;
+}
+
 .menu-content {
     text-align: center;
     padding: 2rem;
@@ -174,21 +181,6 @@ body {
     border-radius: 10px;
     background: rgba(0, 0, 0, 0.8);
     box-shadow: 0 0 20px rgba(255, 0, 255, 0.5);
-}
-
-.menu-content h1 {
-    color: #00ff9f;
-    font-size: 3rem;
-    margin-bottom: 2rem;
-    text-shadow: 0 0 10px #00ff9f;
-    letter-spacing: 4px;
-}
-
-.menu-content h2 {
-    color: #00ff9f;
-    font-size: 2rem;
-    margin-bottom: 1.5rem;
-    text-shadow: 0 0 8px #00ff9f;
 }
 
 .menu-button {
@@ -221,18 +213,4 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 0.5rem;
-}
-
-.setting-item label {
-    margin-right: 1rem;
-}
-
-.setting-item input[type="checkbox"] {
-    width: 20px;
-    height: 20px;
-    cursor: pointer;
-}
-
-.hidden {
-    display: none !important;
 }
