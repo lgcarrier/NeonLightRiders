@@ -122,6 +122,9 @@ body {
     font-size: 18px;
     cursor: pointer;
     display: none;
+    z-index: 1000;
+    box-shadow: 0 0 10px rgba(255, 0, 255, 0.5);
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
 }
 
 #switch-camera.visible {
