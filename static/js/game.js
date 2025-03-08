@@ -204,7 +204,7 @@ class Game {
 
         const trailGeometry = new THREE.BoxGeometry(
             Math.abs(currentGridPos.x - bike.lastGridPosition.x) || 1,
-            20,
+            8, // Reduced height from 20 to 8
             Math.abs(currentGridPos.z - bike.lastGridPosition.z) || 1
         );
 
@@ -217,7 +217,7 @@ class Game {
         const trail = new THREE.Mesh(trailGeometry, trailMaterial);
         trail.position.set(
             (currentGridPos.x + bike.lastGridPosition.x) / 2,
-            0.5,
+            4, // Raised position to half the trail height to show only above grid
             (currentGridPos.z + bike.lastGridPosition.z) / 2
         );
 
