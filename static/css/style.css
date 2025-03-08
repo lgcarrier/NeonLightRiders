@@ -151,3 +151,18 @@ body {
 #destruction-message.visible {
     display: block;
 }
+
+#countdown {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 48px;
+    color: #fff;
+    text-shadow: 0 0 10px #00ff00;
+    z-index: 1000;
+}
+
+.hidden {
+    display: none !important;
+}

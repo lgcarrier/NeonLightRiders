@@ -1,6 +1,10 @@
 class Game {
     constructor() {
+        this.roundManager = new RoundManager();
+        this.gameEndScreen = new GameEndScreen();
         this.initialized = false;
+        this.roundActive = false;  // Add this to track if a round is in progress
+        this.roundStarted = false; // Add new flag
         // Bind event listeners that should exist before initialization
         this.bindEventListeners();
     }
@@ -45,6 +49,31 @@ class Game {
                 this.cycleGhostCamera();
             }
         });
+    }
+
+    async startGame() {
+        while (!this.roundManager.isGameOver()) {
+            await this.roundManager.startNewRound();
+            await this.playRound();
+        }
+        this.endGame();
+    }
+
+    async playRound() {
+        return new Promise(resolve => {
+            // Reset player positions and trails
+            this.resetPlayers();
+            
+            // Your existing game loop logic here
+            // When a player wins or all others are eliminated:
+            this.roundManager.recordRoundWinner(winnerId);
+            resolve();
+        });
+    }
+
+    endGame() {
+        const finalScores = this.roundManager.getScores();
+        this.gameEndScreen.show(finalScores);
     }
 
     setupScene() {
@@ -155,6 +184,9 @@ class Game {
         }
 
         this.updateCamera();
+        this.roundActive = true;
+        this.roundStarted = true;
+        this.roundManager = new RoundManager(); // Reset round manager
     }
 
     turnLeft(bikeIndex = 0) {
@@ -253,6 +285,7 @@ class Game {
 
     checkCollisions(bike) {
         const bikeIndex = this.bikes.indexOf(bike);
+        console.log('Checking collisions for bike:', bikeIndex);
         const now = Date.now();
 
         // Wall collision check
@@ -261,6 +294,9 @@ class Game {
             Math.abs(bike.position.x) > (this.gridSize/2 - buffer) ||
             Math.abs(bike.position.z) > (this.gridSize/2 - buffer)
         ) {
+            console.log('Wall collision detected for bike:', bikeIndex);
+            this.explodeBike(bikeIndex);
+            this.checkGameOver(); // Add explicit call here
             return true;
         }
 
@@ -300,8 +336,9 @@ class Game {
 
             // Use a smaller buffer for more precise collisions
             if (distance < 2) {
-                // Only explode the bike that hit the trail, not the trail's creator
+                console.log('Trail collision detected for bike:', bikeIndex);
                 this.explodeBike(bikeIndex);
+                this.checkGameOver(); // Add explicit call here
                 return false; // Return false since we handle the explosion here
             }
         }
@@ -312,9 +349,11 @@ class Game {
                 const otherBike = this.bikes[i];
                 const distance = bike.position.distanceTo(otherBike.position);
                 if (distance < this.gridCellSize * 2) {
+                    console.log('Bike collision detected between bikes:', bikeIndex, i);
                     // Explode both bikes
                     this.explodeBike(i);
                     this.explodeBike(bikeIndex);
+                    this.checkGameOver(); // Add explicit call here
                     return true;
                 }
             }
@@ -375,12 +414,84 @@ class Game {
     }
 
     checkGameOver() {
+        if (!this.roundStarted) return false;
+
         let activeBikes = this.bikes.filter(bike => bike.active);
+        console.log('Check Game Over:', {
+            activeBikes: activeBikes.length,
+            currentRound: this.roundManager.getCurrentRound(),
+            isGameOver: this.roundManager.isGameOver()
+        });
+
         if (activeBikes.length <= 1) {
-            document.getElementById('game-over').classList.remove('hidden');
+            this.roundStarted = false;
+
+            if (activeBikes.length === 1) {
+                const winnerIndex = this.bikes.indexOf(activeBikes[0]);
+                console.log('Round Winner:', winnerIndex);
+                this.roundManager.recordRoundWinner(winnerIndex.toString());
+            }
+
+            // First increment the round
+            this.roundManager.incrementRound();
+
+            // Then check if game is over
+            if (this.roundManager.isGameOver()) {
+                console.log('Game Over - Final Scores:', this.roundManager.getScores());
+                this.gameEndScreen.show(this.roundManager.getScores());
+            } else {
+                console.log('Starting Next Round');
+                setTimeout(() => {
+                    this.startNewRound();
+                }, 2000);
+            }
             return true;
         }
         return false;
+    }
+
+    startNewRound() {
+        if (this.roundManager.isGameOver()) return;
+
+        this.roundManager.startNewRound().then(() => {
+            // Reset the game state for new round
+            this.trails.forEach(trail => this.scene.remove(trail));
+            this.trails = [];
+            this.explosions = [];
+            this.ghostMode = false;
+            this.ghostCameraIndex = 0;
+
+            // Reset bikes to starting positions
+            this.bikes.forEach((bike, index) => {
+                bike.visible = true;
+                bike.active = true;
+                
+                const cornerOffset = Math.floor(this.gridSize/2 / this.gridCellSize) * this.gridCellSize - 280;
+                const startPositions = [
+                    { x: -cornerOffset, z: cornerOffset, direction: new THREE.Vector3(1, 0, 0) },
+                    { x: cornerOffset, z: cornerOffset, direction: new THREE.Vector3(0, 0, -1) },
+                    { x: -cornerOffset, z: -cornerOffset, direction: new THREE.Vector3(0, 0, 1) },
+                    { x: cornerOffset, z: -cornerOffset, direction: new THREE.Vector3(-1, 0, 0) }
+                ];
+
+                bike.position.set(
+                    Math.round(startPositions[index].x / this.gridCellSize) * this.gridCellSize,
+                    0.5,
+                    Math.round(startPositions[index].z / this.gridCellSize) * this.gridCellSize
+                );
+                bike.direction.copy(startPositions[index].direction).normalize();
+                bike.rotation.y = Math.atan2(bike.direction.x, bike.direction.z);
+                bike.trailStartTime = Date.now() + 1000;
+                bike.lastGridPosition = bike.position.clone();
+            });
+
+            this.updatePlayerCount();
+            this.roundStarted = true;
+            console.log('New Round Started:', {
+                round: this.roundManager.getCurrentRound(),
+                totalRounds: 7
+            });
+        });
     }
 
     updateCamera() {
@@ -411,6 +522,9 @@ class Game {
     }
 
     restartGame() {
+        // First hide the end screen
+        this.gameEndScreen.hide();
+
         this.trails.forEach(trail => this.scene.remove(trail));
         this.bikes.forEach(bike => this.scene.remove(bike));
         this.trails = [];
@@ -427,6 +541,9 @@ class Game {
 
         this.setupGame();
         this.updatePlayerCount();
+        this.roundManager = new RoundManager(); // This resets to round 1
+        document.getElementById('round-value').textContent = '1/7'; // Update display
+        this.roundStarted = true;
 
         document.getElementById('game-over').classList.add('hidden');
     }
@@ -492,8 +609,25 @@ class Game {
             }
 
             if (this.checkCollisions(bike)) {
-                this.explodeBike(i);
-                if (this.checkGameOver()) return;
+                console.log('Collision resulted in bike explosion:', i);
+                // Remove this since we now call checkGameOver in checkCollisions
+                // if (this.checkGameOver()) return;
+            }
+        }
+
+        // Add an explicit check here too
+        let activeBikes = this.bikes.filter(bike => bike.active);
+        if (activeBikes.length <= 1) {
+            console.log('Active bikes check in animate:', activeBikes.length);
+            this.checkGameOver();
+        }
+
+        // Move the active bikes check outside the bike loop
+        if (this.roundActive) {
+            let activeBikes = this.bikes.filter(bike => bike.active);
+            if (activeBikes.length <= 1) {
+                console.log('Round End Check - Active bikes:', activeBikes.length);
+                this.checkGameOver();
             }
         }
 
@@ -503,6 +637,14 @@ class Game {
 
         this.updateCamera();
         this.renderer.render(this.scene, this.camera);
+
+        // Move round check to end of animate
+        if (this.roundStarted) {
+            let activeBikes = this.bikes.filter(bike => bike.active);
+            if (activeBikes.length <= 1) {
+                this.checkGameOver();
+            }
+        }
     }
 }
 
