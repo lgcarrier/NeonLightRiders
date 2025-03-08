@@ -278,7 +278,9 @@ class Game {
 
             // Use a smaller buffer for more precise collisions
             if (distance < 2) {
-                return true;
+                // Only explode the bike that hit the trail, not the trail's creator
+                this.explodeBike(bikeIndex);
+                return false; // Return false since we handle the explosion here
             }
         }
 
