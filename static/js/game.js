@@ -538,23 +538,29 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Add to Game class constructor
+    // Game over menu button
     document.getElementById('menu-button').addEventListener('click', () => {
         gameContainer.classList.add('hidden');
         mainMenu.classList.remove('hidden');
     });
 
-    const gameInstance = new Game(); // Initialize game instance here.
+    // Restart buttons
     document.getElementById('restart-button').addEventListener('click', () => {
-        gameInstance.restartGame();
+        if (game) {
+            game.restartGame();
+        }
     });
 
     document.getElementById('restart-game').addEventListener('click', () => {
-        gameInstance.restartGame();
+        if (game) {
+            game.restartGame();
+        }
     });
 
-    // Add switch camera button handler
+    // Switch camera button
     document.getElementById('switch-camera').addEventListener('click', () => {
-        gameInstance.cycleGhostCamera();
+        if (game) {
+            game.cycleGhostCamera();
+        }
     });
 });
