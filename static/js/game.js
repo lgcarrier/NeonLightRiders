@@ -243,14 +243,14 @@ class Game {
         }
 
         // Trail collision check
-        const trailBuffer = 0.5; 
+        const trailBuffer = 0.5; // Smaller buffer for more precise collisions
         for (const trail of this.trails) {
-            // Only skip very recent trails from the same bike to prevent self-collision
+            // Only skip the most recent trail segment from the same bike
             if (trail.bikeId === bikeIndex && (now - trail.creationTime) < 50) {
                 continue;
             }
 
-            // Simple distance-based collision check
+            // Check distance to trail
             const distance = bike.position.distanceTo(trail.position);
             if (distance < this.gridCellSize * trailBuffer) {
                 console.log(`Trail collision detected:`, {
@@ -269,7 +269,9 @@ class Game {
                 const otherBike = this.bikes[i];
                 const distance = bike.position.distanceTo(otherBike.position);
                 if (distance < this.gridCellSize * 2) {
+                    // Explode both bikes
                     this.explodeBike(i);
+                    this.explodeBike(bikeIndex);
                     return true;
                 }
             }
