@@ -52,12 +52,36 @@
         <button id="switch-camera" class="hidden">Switch Camera</button>
     </div>
 
+    <!-- Load Three.js first -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="{{ url_for('static', filename='js/explosion.js') }}"></script>
+
+    <!-- Load game components in correct order -->
     <script src="{{ url_for('static', filename='js/audio.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/explosion.js') }}"></script>
     <script src="{{ url_for('static', filename='js/ai.js') }}"></script>
     <script src="{{ url_for('static', filename='js/controls.js') }}"></script>
     <script src="{{ url_for('static', filename='js/radar.js') }}"></script>
     <script src="{{ url_for('static', filename='js/game.js') }}"></script>
+
+    <script>
+        // Add immediate initialization check
+        console.log('Document ready - Checking menu system...');
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM fully loaded - Menu system available');
+            // Verify menu elements
+            const elements = [
+                'main-menu',
+                'settings-menu',
+                'game-container',
+                'start-game-btn',
+                'settings-btn',
+                'back-to-menu'
+            ];
+            elements.forEach(id => {
+                const element = document.getElementById(id);
+                console.log(`Element '${id}' ${element ? 'found' : 'not found'}`);
+            });
+        });
+    </script>
 </body>
 </html>

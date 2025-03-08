@@ -487,95 +487,135 @@ class Game {
     }
 }
 
-class AudioManager {
-    constructor() {
-        this.muted = false;
-    }
-
-    setMuted(muted) {
-        this.muted = muted;
-    }
-
-    async playSound(soundName, duration = 0.1) {
-        if (this.muted) return;
-
-        //Existing playSound Code
-    }
-}
-
-document.addEventListener('DOMContentLoaded', () => {
+window.addEventListener('DOMContentLoaded', () => {
+    console.log('Game initialization started');
     let game = null;
     const gameContainer = document.getElementById('game-container');
     const mainMenu = document.getElementById('main-menu');
     const settingsMenu = document.getElementById('settings-menu');
     const soundToggle = document.getElementById('sound-toggle');
 
-    // Start Game button
-    document.getElementById('start-game-btn').addEventListener('click', () => {
-        console.log('Start Game clicked');
-        mainMenu.classList.add('hidden');
-        gameContainer.classList.remove('hidden');
+    // Initialize menu system
+    function initializeMenuSystem() {
+        console.log('Initializing menu system...');
 
-        if (!game) {
-            game = new Game();
-        } else {
-            game.restartGame();
-        }
-    });
-
-    // Settings button
-    document.getElementById('settings-btn').addEventListener('click', () => {
-        console.log('Settings clicked');
-        mainMenu.classList.add('hidden');
-        settingsMenu.classList.remove('hidden');
-    });
-
-    // Back to menu button
-    document.getElementById('back-to-menu').addEventListener('click', () => {
-        console.log('Back to Menu clicked');
+        // Initially hide game container and settings menu, show main menu
+        gameContainer.classList.add('hidden');
         settingsMenu.classList.add('hidden');
         mainMenu.classList.remove('hidden');
-    });
+        console.log('Initial menu state set');
+    }
+
+    // Start Game button
+    const startGameBtn = document.getElementById('start-game-btn');
+    if (startGameBtn) {
+        console.log('Start game button found');
+        startGameBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log('Start Game clicked');
+            mainMenu.classList.add('hidden');
+            gameContainer.classList.remove('hidden');
+
+            if (!game) {
+                game = new Game();
+            } else {
+                game.restartGame();
+            }
+        });
+    } else {
+        console.error('Start game button not found');
+    }
+
+    // Settings button
+    const settingsBtn = document.getElementById('settings-btn');
+    if (settingsBtn) {
+        console.log('Settings button found');
+        settingsBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log('Settings clicked');
+            mainMenu.classList.add('hidden');
+            settingsMenu.classList.remove('hidden');
+        });
+    }
+
+    // Back to menu button
+    const backToMenuBtn = document.getElementById('back-to-menu');
+    if (backToMenuBtn) {
+        console.log('Back to menu button found');
+        backToMenuBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log('Back to Menu clicked');
+            settingsMenu.classList.add('hidden');
+            mainMenu.classList.remove('hidden');
+        });
+    }
 
     // Sound toggle handler
-    soundToggle.addEventListener('change', (e) => {
-        if (game) {
-            game.audio.setMuted(!e.target.checked);
-        }
-    });
+    if (soundToggle) {
+        console.log('Sound toggle found');
+        soundToggle.addEventListener('change', function(e) {
+            if (game) {
+                game.audio.setMuted(!e.target.checked);
+            }
+        });
+    }
 
     // Game over menu button
-    document.getElementById('menu-button').addEventListener('click', () => {
-        console.log('Menu button clicked');
-        if (game) {
-            game.scene.clear();
-            game = null;
-        }
-        gameContainer.classList.add('hidden');
-        mainMenu.classList.remove('hidden');
-    });
+    const menuButton = document.getElementById('menu-button');
+    if (menuButton) {
+        console.log('Menu button found');
+        menuButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log('Menu button clicked');
+            if (game) {
+                game.scene.clear();
+                game = null;
+            }
+            gameContainer.classList.add('hidden');
+            mainMenu.classList.remove('hidden');
+        });
+    }
 
     // Restart button in game over screen
-    document.getElementById('restart-button').addEventListener('click', () => {
-        console.log('Restart button clicked');
-        if (game) {
-            game.restartGame();
-        }
-    });
+    const restartButton = document.getElementById('restart-button');
+    if (restartButton) {
+        console.log('Restart button found');
+        restartButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log('Restart button clicked');
+            if (game) {
+                game.restartGame();
+            }
+        });
+    }
 
     // Restart button during gameplay
-    document.getElementById('restart-game').addEventListener('click', () => {
-        console.log('In-game restart clicked');
-        if (game) {
-            game.restartGame();
-        }
-    });
+    const restartGameBtn = document.getElementById('restart-game');
+    if (restartGameBtn) {
+        console.log('In-game restart button found');
+        restartGameBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log('In-game restart clicked');
+            if (game) {
+                game.restartGame();
+            }
+        });
+    }
 
     // Switch camera button
-    document.getElementById('switch-camera').addEventListener('click', () => {
-        console.log('Switch camera clicked');
-        if (game) {
-            game.cycleGhostCamera();
-        }
-    });
+    const switchCameraBtn = document.getElementById('switch-camera');
+    if (switchCameraBtn) {
+        console.log('Switch camera button found');
+        switchCameraBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log('Switch camera clicked');
+            if (game) {
+                game.cycleGhostCamera();
+            }
+        });
+    }
+
+    // Initialize the menu system
+    initializeMenuSystem();
+    console.log('Menu system initialization completed');
 });

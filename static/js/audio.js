@@ -1,6 +1,11 @@
 class AudioManager {
     constructor() {
         this.context = new (window.AudioContext || window.webkitAudioContext)();
+        this.muted = false;
+    }
+
+    setMuted(muted) {
+        this.muted = muted;
     }
 
     async createSound(frequency, type) {
@@ -48,6 +53,8 @@ class AudioManager {
     }
 
     async playSound(soundName, duration = 0.1) {
+        if (this.muted) return;
+
         let sound;
         switch(soundName) {
             case 'explosion':
