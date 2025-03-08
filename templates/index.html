@@ -7,26 +7,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-    <div id="main-menu" class="menu-overlay">
-        <div class="menu-content">
-            <h1>TRON LIGHT BIKE</h1>
-            <button id="start-game-btn" class="menu-button">Start Game</button>
-            <button id="settings-btn" class="menu-button">Settings</button>
-        </div>
-    </div>
-
-    <div id="settings-menu" class="menu-overlay hidden">
-        <div class="menu-content">
-            <h2>Settings</h2>
-            <div class="setting-item">
-                <label for="sound-toggle">Sound Effects</label>
-                <input type="checkbox" id="sound-toggle" checked>
-            </div>
-            <button id="back-to-menu" class="menu-button">Back to Menu</button>
-        </div>
-    </div>
-
-    <div id="game-container" class="hidden">
+    <div id="game-container">
         <canvas id="gameCanvas"></canvas>
         <canvas id="radarCanvas"></canvas>
         <div id="touch-controls">
@@ -41,7 +22,6 @@
             <div id="game-over" class="hidden">
                 <h2>Game Over</h2>
                 <button id="restart-button">Play Again</button>
-                <button id="menu-button">Main Menu</button>
             </div>
             <button id="restart-game" class="restart-visible">Restart Game</button>
             <div id="destruction-message" class="hidden">
@@ -52,36 +32,12 @@
         <button id="switch-camera" class="hidden">Switch Camera</button>
     </div>
 
-    <!-- Load Three.js first -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-
-    <!-- Load game components in correct order -->
-    <script src="{{ url_for('static', filename='js/audio.js') }}"></script>
     <script src="{{ url_for('static', filename='js/explosion.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/audio.js') }}"></script>
     <script src="{{ url_for('static', filename='js/ai.js') }}"></script>
     <script src="{{ url_for('static', filename='js/controls.js') }}"></script>
     <script src="{{ url_for('static', filename='js/radar.js') }}"></script>
     <script src="{{ url_for('static', filename='js/game.js') }}"></script>
-
-    <script>
-        // Add immediate initialization check
-        console.log('Document ready - Checking menu system...');
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM fully loaded - Menu system available');
-            // Verify menu elements
-            const elements = [
-                'main-menu',
-                'settings-menu',
-                'game-container',
-                'start-game-btn',
-                'settings-btn',
-                'back-to-menu'
-            ];
-            elements.forEach(id => {
-                const element = document.getElementById(id);
-                console.log(`Element '${id}' ${element ? 'found' : 'not found'}`);
-            });
-        });
-    </script>
 </body>
 </html>

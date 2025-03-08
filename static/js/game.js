@@ -23,9 +23,6 @@ class Game {
                 this.cycleGhostCamera();
             }
         });
-
-        // Add sound muting capability
-        this.audio.setMuted(!document.getElementById('sound-toggle').checked);
     }
 
     setupScene() {
@@ -60,12 +57,12 @@ class Game {
     }
 
     setupGame() {
-        this.gridSize = 800;
-        this.gridCellSize = 1;
+        this.gridSize = 800; 
+        this.gridCellSize = 1; 
         this.bikes = [];
         this.trails = [];
         this.ais = [];
-        this.speed = this.gridCellSize;
+        this.speed = this.gridCellSize; 
         this.lastTrailPositions = new Map();
 
         const grid = new THREE.GridHelper(this.gridSize, this.gridSize / this.gridCellSize, 0xff00ff, 0x00ff9f);
@@ -79,10 +76,10 @@ class Game {
         });
 
         const walls = [
-            { pos: [0, wallHeight / 2, -this.gridSize / 2], size: [this.gridSize, wallHeight, 3] },
-            { pos: [0, wallHeight / 2, this.gridSize / 2], size: [this.gridSize, wallHeight, 3] },
-            { pos: [this.gridSize / 2, wallHeight / 2, 0], size: [3, wallHeight, this.gridSize] },
-            { pos: [-this.gridSize / 2, wallHeight / 2, 0], size: [3, wallHeight, this.gridSize] }
+            { pos: [0, wallHeight/2, -this.gridSize/2], size: [this.gridSize, wallHeight, 3] },
+            { pos: [0, wallHeight/2, this.gridSize/2], size: [this.gridSize, wallHeight, 3] },
+            { pos: [this.gridSize/2, wallHeight/2, 0], size: [3, wallHeight, this.gridSize] },
+            { pos: [-this.gridSize/2, wallHeight/2, 0], size: [3, wallHeight, this.gridSize] }
         ];
 
         walls.forEach(wall => {
@@ -94,18 +91,18 @@ class Game {
 
         const bikeGeometry = new THREE.BoxGeometry(2, 1, 4);
         const bikeMaterials = [
-            new THREE.MeshPhongMaterial({ color: 0x00ff9f }),
-            new THREE.MeshPhongMaterial({ color: 0xff00ff }),
-            new THREE.MeshPhongMaterial({ color: 0x00ffff }),
-            new THREE.MeshPhongMaterial({ color: 0xff0000 })
+            new THREE.MeshPhongMaterial({color: 0x00ff9f}),  
+            new THREE.MeshPhongMaterial({color: 0xff00ff}),  
+            new THREE.MeshPhongMaterial({color: 0x00ffff}),  
+            new THREE.MeshPhongMaterial({color: 0xff0000})   
         ];
 
-        const cornerOffset = Math.floor(this.gridSize / 2 / this.gridCellSize) * this.gridCellSize - 280;
+        const cornerOffset = Math.floor(this.gridSize/2 / this.gridCellSize) * this.gridCellSize - 280; 
         const startPositions = [
-            { x: -cornerOffset, z: cornerOffset, direction: new THREE.Vector3(1, 0, 0) },
-            { x: cornerOffset, z: cornerOffset, direction: new THREE.Vector3(0, 0, -1) },
-            { x: -cornerOffset, z: -cornerOffset, direction: new THREE.Vector3(0, 0, 1) },
-            { x: cornerOffset, z: -cornerOffset, direction: new THREE.Vector3(-1, 0, 0) }
+            { x: -cornerOffset, z: cornerOffset, direction: new THREE.Vector3(1, 0, 0) },    
+            { x: cornerOffset, z: cornerOffset, direction: new THREE.Vector3(0, 0, -1) },    
+            { x: -cornerOffset, z: -cornerOffset, direction: new THREE.Vector3(0, 0, 1) },    
+            { x: cornerOffset, z: -cornerOffset, direction: new THREE.Vector3(-1, 0, 0) }     
         ];
 
         for (let i = 0; i < 4; i++) {
@@ -156,8 +153,8 @@ class Game {
 
         if (onGrid) {
             const oldDir = bike.direction.clone();
-            bike.direction.applyAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI / 2);
-            bike.rotateY(Math.PI / 2);
+            bike.direction.applyAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI/2);
+            bike.rotateY(Math.PI/2);
             console.log('Turn Left Executed:', {
                 oldDirection: `x:${oldDir.x.toFixed(2)}, z:${oldDir.z.toFixed(2)}`,
                 newDirection: `x:${bike.direction.x.toFixed(2)}, z:${bike.direction.z.toFixed(2)}`
@@ -184,8 +181,8 @@ class Game {
 
         if (onGrid) {
             const oldDir = bike.direction.clone();
-            bike.direction.applyAxisAngle(new THREE.Vector3(0, 1, 0), -Math.PI / 2);
-            bike.rotateY(-Math.PI / 2);
+            bike.direction.applyAxisAngle(new THREE.Vector3(0, 1, 0), -Math.PI/2);
+            bike.rotateY(-Math.PI/2);
             console.log('Turn Right Executed:', {
                 oldDirection: `x:${oldDir.x.toFixed(2)}, z:${oldDir.z.toFixed(2)}`,
                 newDirection: `x:${bike.direction.x.toFixed(2)}, z:${bike.direction.z.toFixed(2)}`
@@ -207,7 +204,7 @@ class Game {
 
         const trailGeometry = new THREE.BoxGeometry(
             Math.abs(currentGridPos.x - bike.lastGridPosition.x) || 1,
-            8,
+            8, 
             Math.abs(currentGridPos.z - bike.lastGridPosition.z) || 1
         );
 
@@ -220,7 +217,7 @@ class Game {
         const trail = new THREE.Mesh(trailGeometry, trailMaterial);
         trail.position.set(
             (currentGridPos.x + bike.lastGridPosition.x) / 2,
-            4,
+            4, 
             (currentGridPos.z + bike.lastGridPosition.z) / 2
         );
 
@@ -239,8 +236,8 @@ class Game {
         // Wall collision check
         const buffer = 3;
         if (
-            Math.abs(bike.position.x) > (this.gridSize / 2 - buffer) ||
-            Math.abs(bike.position.z) > (this.gridSize / 2 - buffer)
+            Math.abs(bike.position.x) > (this.gridSize/2 - buffer) ||
+            Math.abs(bike.position.z) > (this.gridSize/2 - buffer)
         ) {
             return true;
         }
@@ -349,7 +346,7 @@ class Game {
                 // Hide destruction message
                 destructionMsg.classList.remove('visible');
                 destructionMsg.classList.add('hidden');
-            }, 5000);
+            }, 5000); 
         }
 
         this.updatePlayerCount();
@@ -397,9 +394,9 @@ class Game {
         this.trails = [];
         this.bikes = [];
         this.ais = [];
-        this.explosions = [];
-        this.ghostMode = false;
-        this.ghostCameraIndex = 0;
+        this.explosions = []; 
+        this.ghostMode = false; 
+        this.ghostCameraIndex = 0; 
 
         // Hide UI elements
         document.getElementById('switch-camera').classList.remove('visible');
@@ -487,135 +484,19 @@ class Game {
     }
 }
 
-window.addEventListener('DOMContentLoaded', () => {
-    console.log('Game initialization started');
-    let game = null;
-    const gameContainer = document.getElementById('game-container');
-    const mainMenu = document.getElementById('main-menu');
-    const settingsMenu = document.getElementById('settings-menu');
-    const soundToggle = document.getElementById('sound-toggle');
+document.addEventListener('DOMContentLoaded', () => {
+    const game = new Game();
 
-    // Initialize menu system
-    function initializeMenuSystem() {
-        console.log('Initializing menu system...');
+    document.getElementById('restart-button').addEventListener('click', () => {
+        game.restartGame();
+    });
 
-        // Initially hide game container and settings menu, show main menu
-        gameContainer.classList.add('hidden');
-        settingsMenu.classList.add('hidden');
-        mainMenu.classList.remove('hidden');
-        console.log('Initial menu state set');
-    }
+    document.getElementById('restart-game').addEventListener('click', () => {
+        game.restartGame();
+    });
 
-    // Start Game button
-    const startGameBtn = document.getElementById('start-game-btn');
-    if (startGameBtn) {
-        console.log('Start game button found');
-        startGameBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            console.log('Start Game clicked');
-            mainMenu.classList.add('hidden');
-            gameContainer.classList.remove('hidden');
-
-            if (!game) {
-                game = new Game();
-            } else {
-                game.restartGame();
-            }
-        });
-    } else {
-        console.error('Start game button not found');
-    }
-
-    // Settings button
-    const settingsBtn = document.getElementById('settings-btn');
-    if (settingsBtn) {
-        console.log('Settings button found');
-        settingsBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            console.log('Settings clicked');
-            mainMenu.classList.add('hidden');
-            settingsMenu.classList.remove('hidden');
-        });
-    }
-
-    // Back to menu button
-    const backToMenuBtn = document.getElementById('back-to-menu');
-    if (backToMenuBtn) {
-        console.log('Back to menu button found');
-        backToMenuBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            console.log('Back to Menu clicked');
-            settingsMenu.classList.add('hidden');
-            mainMenu.classList.remove('hidden');
-        });
-    }
-
-    // Sound toggle handler
-    if (soundToggle) {
-        console.log('Sound toggle found');
-        soundToggle.addEventListener('change', function(e) {
-            if (game) {
-                game.audio.setMuted(!e.target.checked);
-            }
-        });
-    }
-
-    // Game over menu button
-    const menuButton = document.getElementById('menu-button');
-    if (menuButton) {
-        console.log('Menu button found');
-        menuButton.addEventListener('click', function(e) {
-            e.preventDefault();
-            console.log('Menu button clicked');
-            if (game) {
-                game.scene.clear();
-                game = null;
-            }
-            gameContainer.classList.add('hidden');
-            mainMenu.classList.remove('hidden');
-        });
-    }
-
-    // Restart button in game over screen
-    const restartButton = document.getElementById('restart-button');
-    if (restartButton) {
-        console.log('Restart button found');
-        restartButton.addEventListener('click', function(e) {
-            e.preventDefault();
-            console.log('Restart button clicked');
-            if (game) {
-                game.restartGame();
-            }
-        });
-    }
-
-    // Restart button during gameplay
-    const restartGameBtn = document.getElementById('restart-game');
-    if (restartGameBtn) {
-        console.log('In-game restart button found');
-        restartGameBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            console.log('In-game restart clicked');
-            if (game) {
-                game.restartGame();
-            }
-        });
-    }
-
-    // Switch camera button
-    const switchCameraBtn = document.getElementById('switch-camera');
-    if (switchCameraBtn) {
-        console.log('Switch camera button found');
-        switchCameraBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            console.log('Switch camera clicked');
-            if (game) {
-                game.cycleGhostCamera();
-            }
-        });
-    }
-
-    // Initialize the menu system
-    initializeMenuSystem();
-    console.log('Menu system initialization completed');
+    // Add switch camera button handler
+    document.getElementById('switch-camera').addEventListener('click', () => {
+        game.cycleGhostCamera();
+    });
 });

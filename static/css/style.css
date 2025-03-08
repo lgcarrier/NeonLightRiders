@@ -16,89 +16,6 @@ body {
     height: 100vh;
 }
 
-/* Menu Styles */
-.menu-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(18, 4, 88, 0.95);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 2000;
-}
-
-.menu-content {
-    text-align: center;
-    padding: 2rem;
-    border: 2px solid #ff00ff;
-    border-radius: 10px;
-    background: rgba(0, 0, 0, 0.8);
-    box-shadow: 0 0 20px rgba(255, 0, 255, 0.5);
-}
-
-.menu-content h1 {
-    color: #00ff9f;
-    font-size: 3rem;
-    margin-bottom: 2rem;
-    text-shadow: 0 0 10px #00ff9f;
-    letter-spacing: 4px;
-}
-
-.menu-content h2 {
-    color: #00ff9f;
-    font-size: 2rem;
-    margin-bottom: 1.5rem;
-    text-shadow: 0 0 8px #00ff9f;
-}
-
-.menu-button {
-    display: block;
-    width: 200px;
-    margin: 1rem auto;
-    padding: 1rem;
-    font-size: 1.2rem;
-    background: #ff00ff;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-}
-
-.menu-button:hover {
-    background: #ff33ff;
-    box-shadow: 0 0 15px rgba(255, 0, 255, 0.7);
-    transform: scale(1.05);
-}
-
-.setting-item {
-    margin: 1rem 0;
-    color: #00ff9f;
-    font-size: 1.2rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.5rem;
-}
-
-/* Hide/Show Elements */
-.hidden {
-    display: none !important;
-}
-
-#game-container.hidden {
-    display: none !important;
-}
-
-.menu-overlay.hidden {
-    display: none !important;
-}
-
 #gameCanvas {
     position: absolute;
     top: 0;
@@ -184,6 +101,13 @@ body {
     right: 20px;
 }
 
+.hidden {
+    display: none;
+}
+
+.restart-visible {
+    display: block;
+}
 
 #switch-camera {
     position: absolute;
