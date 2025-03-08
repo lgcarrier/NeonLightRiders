@@ -14,10 +14,6 @@
             <div id="left-button"></div>
             <div id="right-button"></div>
         </div>
-        <div id="emote-controls" class="hidden">
-            <button id="emote-happy">😊</button>
-            <button id="emote-taunt">😈</button>
-        </div>
         <div id="ui-overlay">
             <div id="game-stats">
                 <div id="score">Score: <span id="score-value">0</span></div>
@@ -37,7 +33,6 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="{{ url_for('static', filename='js/animations.js') }}"></script>
     <script src="{{ url_for('static', filename='js/explosion.js') }}"></script>
     <script src="{{ url_for('static', filename='js/audio.js') }}"></script>
     <script src="{{ url_for('static', filename='js/ai.js') }}"></script>
