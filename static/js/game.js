@@ -257,22 +257,20 @@ class Game {
         }
 
         // Improved trail collision detection
-        const trailBuffer = 1.5; // Slightly larger buffer for trail collisions
+        const trailBuffer = 0.8; // Reduced buffer for more precise collisions
         for (const trail of this.trails) {
-            // Skip only very recent trails from the same bike
-            if (trail.bikeId === bikeIndex && (now - trail.creationTime) < 500) {
+            // Only skip very recent trails from the same bike
+            if (trail.bikeId === bikeIndex && (now - trail.creationTime) < 100) {
                 continue;
             }
 
-            // Skip extremely new trails from any bike to prevent false positives
-            if ((now - trail.creationTime) < 100) {
-                continue;
-            }
-
-            // Check both grid position and actual position for more accurate detection
+            // Grid-based collision detection
             const gridDistance = gridPos.distanceTo(trail.position);
+
+            // Actual position-based collision detection
             const actualDistance = bike.position.distanceTo(trail.position);
 
+            // Check for collision using both grid and actual position
             if (gridDistance < this.gridCellSize * trailBuffer || actualDistance < this.gridCellSize * trailBuffer) {
                 console.log(`Bike ${bikeIndex} trail collision:`, {
                     bikePosition: `x:${gridPos.x.toFixed(2)}, z:${gridPos.z.toFixed(2)}`,
