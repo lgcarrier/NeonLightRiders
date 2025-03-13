@@ -140,13 +140,42 @@ class Game {
             this.scene.add(mesh);
         });
 
-        const bikeGeometry = new THREE.BoxGeometry(2, 1, 4);
+        // Define bike geometry and materials
+        const bikeGeometry = new THREE.BoxGeometry(1, 1, 1); // Replace with actual bike geometry
         const bikeMaterials = [
-            new THREE.MeshBasicMaterial({color: 0x00ff9f}),  
-            new THREE.MeshBasicMaterial({color: 0xff00ff}),  
-            new THREE.MeshBasicMaterial({color: 0x00ffff}),  
-            new THREE.MeshBasicMaterial({color: 0xff0000})   
+            new THREE.MeshBasicMaterial({ color: 0xff0000 }), // Replace with actual materials
+            new THREE.MeshBasicMaterial({ color: 0x00ff00 }),
+            new THREE.MeshBasicMaterial({ color: 0x0000ff }),
+            new THREE.MeshBasicMaterial({ color: 0xffff00 })
         ];
+
+        // Function to create a bike with LOD
+        function createBikeWithLOD(geometryHigh, geometryMedium, geometryLow, material) {
+            const lod = new THREE.LOD();
+
+            // High-resolution model (close to the camera)
+            const highResMesh = new THREE.Mesh(geometryHigh, material);
+            lod.addLevel(highResMesh, 0);
+
+            // Medium-resolution model (mid-distance)
+            const mediumResMesh = new THREE.Mesh(geometryMedium, material);
+            lod.addLevel(mediumResMesh, 50);
+
+            // Low-resolution model (far away)
+            const lowResMesh = new THREE.Mesh(geometryLow, material);
+            lod.addLevel(lowResMesh, 100);
+
+            return lod;
+        }
+
+        // Example usage
+        const geometryHigh = new THREE.BoxGeometry(1, 1, 1); // Replace with actual high-res geometry
+        const geometryMedium = new THREE.BoxGeometry(0.5, 0.5, 0.5); // Replace with actual medium-res geometry
+        const geometryLow = new THREE.BoxGeometry(0.25, 0.25, 0.25); // Replace with actual low-res geometry
+        const material = new THREE.MeshBasicMaterial({ color: 0xff0000 }); // Replace with actual material
+
+        const bikeLOD = createBikeWithLOD(geometryHigh, geometryMedium, geometryLow, material);
+        this.scene.add(bikeLOD);
 
         const cornerOffset = Math.floor(this.gridSize/2 / this.gridCellSize) * this.gridCellSize - 280; 
         const startPositions = [
