@@ -120,7 +120,7 @@ class Game {
         this.scene.add(grid);
 
         const wallHeight = 20;
-        const wallMaterial = new THREE.MeshPhongMaterial({
+        const wallMaterial = new THREE.MeshBasicMaterial({
             color: 0xff00ff,
             transparent: true,
             opacity: 0.5
@@ -142,10 +142,10 @@ class Game {
 
         const bikeGeometry = new THREE.BoxGeometry(2, 1, 4);
         const bikeMaterials = [
-            new THREE.MeshPhongMaterial({color: 0x00ff9f}),  
-            new THREE.MeshPhongMaterial({color: 0xff00ff}),  
-            new THREE.MeshPhongMaterial({color: 0x00ffff}),  
-            new THREE.MeshPhongMaterial({color: 0xff0000})   
+            new THREE.MeshBasicMaterial({color: 0x00ff9f}),  
+            new THREE.MeshBasicMaterial({color: 0xff00ff}),  
+            new THREE.MeshBasicMaterial({color: 0x00ffff}),  
+            new THREE.MeshBasicMaterial({color: 0xff0000})   
         ];
 
         const cornerOffset = Math.floor(this.gridSize/2 / this.gridCellSize) * this.gridCellSize - 280; 

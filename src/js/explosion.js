@@ -13,11 +13,9 @@ class Explosion {
     }
 
     createParticles() {
-        const geometry = new THREE.SphereGeometry(1.0, 8, 8); // Doubled size from 0.5
-        const material = new THREE.MeshPhongMaterial({
+        const geometry = new THREE.SphereGeometry(1.0, 8, 8);
+        const material = new THREE.MeshBasicMaterial({
             color: this.color,
-            emissive: this.color,
-            emissiveIntensity: 3, // Increased from 2
             transparent: true
         });
 
@@ -25,11 +23,10 @@ class Explosion {
             const particle = new THREE.Mesh(geometry, material.clone());
             particle.position.copy(this.position);
 
-            // Further increased velocity and spread
             particle.velocity = new THREE.Vector3(
-                (Math.random() - 0.5) * 2.5, // Increased from 1.5
-                Math.random() * 1.5,         // Increased from 1.0
-                (Math.random() - 0.5) * 2.5  // Increased from 1.5
+                (Math.random() - 0.5) * 2.5,
+                Math.random() * 1.5,
+                (Math.random() - 0.5) * 2.5
             );
 
             this.particles.push(particle);

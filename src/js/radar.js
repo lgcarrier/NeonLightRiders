@@ -32,6 +32,12 @@ class RadarMap {
                 this.padding, this.size - this.padding);
 
             // Draw bike dot
+            if (bike.material.map) {
+                const textureLoader = new THREE.TextureLoader();
+                const texture = textureLoader.load(bike.material.map.image.src);
+                texture.minFilter = THREE.LinearMipmapLinearFilter; // Enable mipmapping
+            }
+
             this.ctx.fillStyle = bike.material.color.getStyle();
             this.ctx.beginPath();
             this.ctx.arc(x, z, this.dotSize, 0, Math.PI * 2);
