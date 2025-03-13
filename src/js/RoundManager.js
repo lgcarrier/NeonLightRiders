@@ -23,9 +23,9 @@ class RoundManager {
         console.log('Checking game over:', {
             currentRound: this.currentRound,
             totalRounds: this.totalRounds,
-            isOver: this.currentRound >= this.totalRounds
+            isOver: this.currentRound > this.totalRounds
         });
-        return this.currentRound >= this.totalRounds;
+        return this.currentRound > this.totalRounds;
     }
 
     recordRoundWinner(playerId) {
