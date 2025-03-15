@@ -35,7 +35,7 @@ class AI {
         }
 
         // Check collision with trails
-        for (const trail of this.game.trails) {
+        for (const trail of this.game.trailManager.getTrails()) {
             const distance = position.distanceTo(trail.position);
             if (distance < 2) {
                 return true;
@@ -71,3 +71,5 @@ class AI {
         return !this.willCollide(newPosition);
     }
 }
+
+export default AI;

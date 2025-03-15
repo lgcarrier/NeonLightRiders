@@ -12,3 +12,5 @@ class ScoreManager {
         return this.scores;
     }
 }
+
+export default ScoreManager;

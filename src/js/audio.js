@@ -69,3 +69,5 @@ class AudioManager {
         }, duration * 1000);
     }
 }
+
+export default AudioManager;

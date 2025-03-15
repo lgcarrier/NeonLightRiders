@@ -87,3 +87,5 @@ class Explosion {
         this.shockwave.material.dispose();
     }
 }
+
+export default Explosion;

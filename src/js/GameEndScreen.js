@@ -20,7 +20,7 @@ class GameEndScreen {
             .sort(([, a], [, b]) => b - a)
             .forEach(([playerId, score]) => {
                 const li = document.createElement('li');
-                li.textContent = `Player ${int(playerId)+1}: ${score} points`;
+                li.textContent = `Player ${parseInt(playerId)+1}: ${score} points`;
                 scoresList.appendChild(li);
             });
 
@@ -37,3 +37,5 @@ class GameEndScreen {
         }
     }
 }
+
+export default GameEndScreen;

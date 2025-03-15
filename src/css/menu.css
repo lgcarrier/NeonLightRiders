@@ -1,4 +1,4 @@
-.main-menu {
+.main-menu, #settings-menu {
     position: absolute;
     top: 50%;
     left: 50%;
@@ -11,11 +11,15 @@
     box-shadow: 0 0 20px #0ff;
 }
 
-.main-menu h1 {
+.main-menu h1, #settings-menu h2 {
     color: #0ff;
     font-size: 2.5rem;
     margin-bottom: 2rem;
     text-shadow: 0 0 10px #0ff;
+}
+
+#settings-menu h2 {
+    font-size: 2rem;
 }
 
 .menu-button {
@@ -39,4 +43,54 @@
 
 .hidden {
     display: none !important;
+}
+
+/* Settings menu styles */
+.setting-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    color: #0ff;
+    font-size: 1.2rem;
+}
+
+.setting-item label {
+    margin-right: 1rem;
+}
+
+/* Toggle switch styles */
+input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 50px;
+    height: 24px;
+    background: #333;
+    border-radius: 12px;
+    position: relative;
+    cursor: pointer;
+    outline: none;
+    transition: all 0.3s;
+    border: 1px solid #0ff;
+}
+
+input[type="checkbox"]::after {
+    content: '';
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #fff;
+    position: absolute;
+    top: 1px;
+    left: 2px;
+    transition: all 0.3s;
+}
+
+input[type="checkbox"]:checked {
+    background: #0ff;
+}
+
+input[type="checkbox"]:checked::after {
+    left: calc(100% - 22px);
+    background: #000;
 }

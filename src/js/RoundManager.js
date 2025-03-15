@@ -1,3 +1,5 @@
+import ScoreManager from './ScoreManager.js';
+
 class RoundManager {
     constructor() {
         this.currentRound = 1; // Start at round 1 instead of 0
@@ -95,3 +97,5 @@ class RoundManager {
         });
     }
 }
+
+export default RoundManager;
