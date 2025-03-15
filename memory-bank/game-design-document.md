@@ -13,6 +13,7 @@
 - Trails act as solid walls that players must avoid
 - Trails do not fade over time
 - Collision with trails results in elimination
+- Optional setting to keep trails on the grid after a bike explodes, increasing difficulty
 
 ### Movement & Controls
 - WASD/Arrow keys for directional control

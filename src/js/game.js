@@ -36,6 +36,7 @@ class Game {
             trailDelay: 1000, // Delay in ms before trail creation starts
             debug: false, // Enable debug mode
             trailSegmentSize: 1, // Size of trail segments
+            trailsRemainAfterExplosion: false, // Set to true to keep trails after a bike explodes
             ...options.gameSettings
         };
         
@@ -234,7 +235,7 @@ class Game {
 
         bike.visible = false;
 
-        if (!this.trailsRemainAfterExplosion) {
+        if (!window.gameSettings.trailsRemainAfterExplosion) {
             console.log(`Removing trails for bike ${bikeIndex}`);
             this.trailManager.removeTrailsForBike(bikeIndex);
         }

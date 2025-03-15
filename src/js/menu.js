@@ -24,6 +24,15 @@ class GameMenu {
             });
         }
         
+        // Persistent trails toggle
+        const persistentTrailsToggle = document.getElementById('persistent-trails-toggle');
+        if (persistentTrailsToggle) {
+            persistentTrailsToggle.addEventListener('change', (e) => {
+                window.gameSettings.trailsRemainAfterExplosion = e.target.checked;
+                console.log('Persistent trails set to:', window.gameSettings.trailsRemainAfterExplosion);
+            });
+        }
+        
         // Debug mode toggle
         const debugToggle = document.getElementById('debug-toggle');
         if (debugToggle) {
@@ -64,6 +73,11 @@ class GameMenu {
             this.selfCollisionToggle.checked = window.gameSettings?.allowSelfCollision || false;
         }
         
+        const persistentTrailsToggle = document.getElementById('persistent-trails-toggle');
+        if (persistentTrailsToggle) {
+            persistentTrailsToggle.checked = window.gameSettings?.trailsRemainAfterExplosion || false;
+        }
+        
         const debugToggle = document.getElementById('debug-toggle');
         if (debugToggle) {
             debugToggle.checked = window.gameSettings?.debug || false;
@@ -88,6 +102,10 @@ class GameMenu {
                 <div class="setting-item">
                     <label for="self-collision-toggle">Allow Self-Collision:</label>
                     <input type="checkbox" id="self-collision-toggle">
+                </div>
+                <div class="setting-item">
+                    <label for="persistent-trails-toggle">Persistent Trails:</label>
+                    <input type="checkbox" id="persistent-trails-toggle">
                 </div>
                 <div class="setting-item">
                     <label for="debug-toggle">Debug Mode:</label>

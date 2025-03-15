@@ -76,4 +76,5 @@ NeonLightRiders is a TRON-like light cycle game where players leave light trails
 - Ghost mode activates after player death
 - Explosion effects with particle systems
 - Neon visual style with grid arena
+- **Persistent Trails**: Option to keep trails on the grid after a bike explodes, making the arena more challenging as the game progresses
 
