@@ -26,10 +26,25 @@ NeonLightRiders is a game project that includes the following main components:
 
 ## Running the Game
 
-To start the game, run the following command:
+You can run the game using one of the following methods:
+
+### Using http-server
+1. Make sure you have http-server installed globally:
 ```bash
-npm start
+npm install -g http-server
 ```
+
+2. Navigate to the project directory and run:
+```bash
+cd /path/to/NeonLightRiders && http-server
+```
+
+For example:
+```bash
+cd NeonLightRiders && http-server
+```
+
+3. Open your browser and go to one of the URLs displayed in the terminal (typically http://127.0.0.1:8080)
 
 ## Game Mechanics
 
