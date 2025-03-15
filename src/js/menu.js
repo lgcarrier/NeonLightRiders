@@ -43,9 +43,15 @@ class GameMenu {
     startGame() {
         this.mainMenu.classList.add('hidden');
         this.gameContainer.classList.remove('hidden');
+        
         // Initialize the game if not already initialized
-        if (window.game && !window.game.initialized) {
-            window.game.init();
+        if (window.game) {
+            if (!window.game.initialized) {
+                window.game.init();
+            }
+            
+            // Explicitly start a new round when the user clicks "Start Game"
+            window.game.startNewRound();
         }
     }
 

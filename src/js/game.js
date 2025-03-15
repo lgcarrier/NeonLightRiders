@@ -184,8 +184,9 @@ class Game {
         }
 
         this.updateCamera();
-        this.roundActive = true;
-        this.roundStarted = true;
+        // Don't automatically start the round
+        this.roundActive = false;
+        this.roundStarted = false;
         this.roundManager = new RoundManager(); // Reset round manager
         this.updatePlayerCount();
     }
@@ -333,6 +334,7 @@ class Game {
 
             this.updatePlayerCount();
             this.roundStarted = true;
+            this.roundActive = true;  // Set roundActive to true when starting a new round
             console.log('New Round Started:', {
                 round: this.roundManager.getCurrentRound(),
                 totalRounds: 7
@@ -418,48 +420,51 @@ class Game {
         // Update radar before processing bike movements
         this.radar.update(this.bikes.map(bike => bike.mesh), this.gridSize);
 
-        for (let i = 0; i < this.bikes.length; i++) {
-            const bike = this.bikes[i];
-            if (!bike.active) continue;
+        // Only process bike movements if a round is active
+        if (this.roundActive) {
+            for (let i = 0; i < this.bikes.length; i++) {
+                const bike = this.bikes[i];
+                if (!bike.active) continue;
 
-            console.log(`Bike ${i} Pre-Movement:`, {
-                position: `x:${bike.position.x.toFixed(2)}, z:${bike.position.z.toFixed(2)}`,
-                direction: `x:${bike.direction.x.toFixed(2)}, z:${bike.direction.z.toFixed(2)}`,
-                speed: this.speed,
-                active: bike.active,
-                timestamp: timestamp
-            });
+                console.log(`Bike ${i} Pre-Movement:`, {
+                    position: `x:${bike.position.x.toFixed(2)}, z:${bike.position.z.toFixed(2)}`,
+                    direction: `x:${bike.direction.x.toFixed(2)}, z:${bike.direction.z.toFixed(2)}`,
+                    speed: this.speed,
+                    active: bike.active,
+                    timestamp: timestamp
+                });
 
-            const moveInfo = bike.move(this.speed);
+                const moveInfo = bike.move(this.speed);
 
-            console.log(`Bike ${i} Movement:`, {
-                oldPosition: `x:${moveInfo.oldPosition.x.toFixed(2)}, z:${moveInfo.oldPosition.z.toFixed(2)}`,
-                newPosition: `x:${moveInfo.newPosition.x.toFixed(2)}, z:${moveInfo.newPosition.z.toFixed(2)}`,
-                movement: `x:${moveInfo.movement.x.toFixed(2)}, z:${moveInfo.movement.z.toFixed(2)}`,
-                direction: `x:${bike.direction.x.toFixed(2)}, z:${bike.direction.z.toFixed(2)}`,
-                speed: this.speed,
-                active: bike.active,
-                timestamp: timestamp
-            });
+                console.log(`Bike ${i} Movement:`, {
+                    oldPosition: `x:${moveInfo.oldPosition.x.toFixed(2)}, z:${moveInfo.oldPosition.z.toFixed(2)}`,
+                    newPosition: `x:${moveInfo.newPosition.x.toFixed(2)}, z:${moveInfo.newPosition.z.toFixed(2)}`,
+                    movement: `x:${moveInfo.movement.x.toFixed(2)}, z:${moveInfo.movement.z.toFixed(2)}`,
+                    direction: `x:${bike.direction.x.toFixed(2)}, z:${bike.direction.z.toFixed(2)}`,
+                    speed: this.speed,
+                    active: bike.active,
+                    timestamp: timestamp
+                });
 
-            // First check for collisions, then create trail
-            // This ensures we detect collisions before creating new trail segments
-            if (this.checkCollisions(bike)) {
-                console.log('Collision resulted in bike explosion:', i);
-                continue; // Skip trail creation if bike exploded
+                // First check for collisions, then create trail
+                // This ensures we detect collisions before creating new trail segments
+                if (this.checkCollisions(bike)) {
+                    console.log('Collision resulted in bike explosion:', i);
+                    continue; // Skip trail creation if bike exploded
+                }
+
+                // Create trail after collision check and only if enough time has passed
+                if (Date.now() > bike.trailStartTime) {
+                    this.trailManager.createTrail(bike, this.gridCellSize);
+                }
             }
 
-            // Create trail after collision check and only if enough time has passed
-            if (Date.now() > bike.trailStartTime) {
-                this.trailManager.createTrail(bike, this.gridCellSize);
+            // Add an explicit check here too
+            let activeBikes = this.bikes.filter(bike => bike.active);
+            if (activeBikes.length <= 1) {
+                console.log('Active bikes check in animate:', activeBikes.length);
+                this.checkGameOver();
             }
-        }
-
-        // Add an explicit check here too
-        let activeBikes = this.bikes.filter(bike => bike.active);
-        if (activeBikes.length <= 1) {
-            console.log('Active bikes check in animate:', activeBikes.length);
-            this.checkGameOver();
         }
 
         // Move the active bikes check outside the bike loop
@@ -469,15 +474,16 @@ class Game {
                 console.log('Round End Check - Active bikes:', activeBikes.length);
                 this.checkGameOver();
             }
-        }
-
-        for (const ai of this.ais) {
-            ai.update();
+            
+            // Only update AI when a round is active
+            for (const ai of this.ais) {
+                ai.update();
+            }
         }
 
         this.updateCamera();
         this.sceneManager.render(this.camera);
-
+        
         // Move round check to end of animate
         if (this.roundStarted) {
             let activeBikes = this.bikes.filter(bike => bike.active);
