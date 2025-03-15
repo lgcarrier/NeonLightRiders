@@ -1,50 +1,65 @@
 # NeonLightRiders
 
+![Neon Light Riders](generated-icon.png)
+
 ## Overview
 
-NeonLightRiders is a game project that includes the following main components:
-- **README.md**: Project overview and instructions.
-- **Game Engine Files**: Core logic for game mechanics.
-- **Assets**: Game resources like images, sounds, and configuration files.
-- **Additional Modules**: Helper modules and utilities used throughout the game.
+NeonLightRiders is a TRON-like light cycle game where players leave neon trails behind their bikes and must avoid collisions. The game features vibrant visuals, 3D graphics via Three.js, and challenging AI opponents.
+
+## Features
+
+- Stunning neon visuals with 3D graphics powered by Three.js
+- Single-player gameplay with up to 3 AI opponents
+- Multiple rounds of increasing difficulty
+- Radar map showing position of all players
+- Spectator/ghost mode after player death
+- Explosion particle effects
+- Mobile-compatible touch controls
+- Customizable game settings
 
 ## Installation
 
-1. Make sure you have [Node.js](https://nodejs.org/) and npm installed.
-2. Clone the repository:
+### Prerequisites
+
+- Node.js (v14 or higher)
+- A modern web browser with WebGL support
+
+### Setup
+
+1. Clone the repository:
    ```bash
    git clone https://github.com/yourusername/NeonLightRiders.git
    ```
-3. Navigate into the project directory:
+2. Navigate into the project directory:
    ```bash
    cd NeonLightRiders
    ```
-4. Install dependencies:
+3. Install dependencies:
    ```bash
    npm install
    ```
 
 ## Running the Game
 
-You can run the game using one of the following methods:
+### Development Mode
 
-### Using http-server
-1. Make sure you have http-server installed globally:
+Run a local development server:
+
 ```bash
-npm install -g http-server
+npm start
 ```
 
-2. Navigate to the project directory and run:
+Open your browser and go to http://localhost:8080
+
+### Production Build
+
+Create a production build:
+
 ```bash
-cd /path/to/NeonLightRiders && http-server
+npm run build
 ```
 
-For example:
-```bash
-cd NeonLightRiders && http-server
-```
-
-3. Open your browser and go to one of the URLs displayed in the terminal (typically http://127.0.0.1:8080)
+The optimized files will be available in the `dist` directory.
 
 ## Game Mechanics
 
@@ -52,14 +67,15 @@ cd NeonLightRiders && http-server
 NeonLightRiders is a TRON-like light cycle game where players leave light trails behind their bikes and must avoid colliding with walls, trails, and other players.
 
 ### Players
-- Up to 4 players can participate
-- Player 1 is human-controlled, Players 2-4 are AI-controlled
+- Up to 4 players can participate (1 human + 3 AI)
 - Each player has a uniquely colored bike and matching trail
 
 ### Controls
-- **Keyboard**: Use Left/Right arrow keys to turn
-- **Touch**: Use on-screen left/right buttons on mobile devices
-- **Tab**: Switch camera views in ghost mode (after player death)
+- **Keyboard**: 
+  - Left/Right arrow keys to turn
+  - Tab to switch camera views in ghost mode (after player death)
+- **Touch**: 
+  - Use on-screen left/right buttons on mobile devices
 
 ### Rules
 1. Bikes move forward continuously at a constant speed
@@ -69,12 +85,43 @@ NeonLightRiders is a TRON-like light cycle game where players leave light trails
    - Hitting walls
    - Hitting light trails (your own or others)
    - Colliding with other bikes
-5. Last bike surviving wins
+5. Last bike surviving wins the round
+6. Players compete across multiple rounds to determine the ultimate winner
 
-### Special Features
-- Radar map shows positions of all active bikes
-- Ghost mode activates after player death
-- Explosion effects with particle systems
-- Neon visual style with grid arena
-- **Persistent Trails**: Option to keep trails on the grid after a bike explodes, making the arena more challenging as the game progresses
+### Game Settings
+- **Self Collision**: Toggle whether bikes can collide with their own trails
+- **Trail Delay**: Time before trails start appearing
+- **Persistent Trails**: Option to keep trails on the grid after a bike explodes
+
+## Project Structure
+
+```
+NeonLightRiders/
+├── src/                    # Source code
+│   ├── js/                 # JavaScript files
+│   │   ├── game.js         # Main game logic
+│   │   ├── Bike.js         # Bike entity
+│   │   ├── Trail.js        # Trail system
+│   │   ├── ai.js           # AI opponent logic
+│   │   ├── controls.js     # Input controls
+│   │   └── ...
+│   ├── css/                # Stylesheets
+│   ├── utils/              # Utility functions
+│   └── index.html          # Main HTML file
+└── memory-bank/            # Project documentation
+```
+
+## Development
+
+### Contribution Guidelines
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature-name`
+3. Commit your changes: `git commit -m 'Add some feature'`
+4. Push to the branch: `git push origin feature-name`
+5. Submit a pull request
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
 

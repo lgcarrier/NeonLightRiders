@@ -2,130 +2,136 @@
 
 ## Game Overview
 - **Title**: Neon Light Riders
-- **Genre**: Single-player 3D Racing/Combat with AI
-- **Platform**: Web Browser (WebGL/ThreeJS)
-- **Target Audience**: 13+ players who enjoy competitive multiplayer racing games
+- **Genre**: Single-player 3D arcade game with AI opponents
+- **Platform**: Web Browser (WebGL/Three.js)
+- **Target Audience**: 13+ players who enjoy fast-paced arcade games
 - **Art Style**: Retro-futuristic, neon-lit cyberpunk aesthetic
 
 ## Core Gameplay Mechanics
+
 ### Light Trail System
-- Players leave persistent light trails behind their vehicles
+- Players leave persistent light trails behind their bikes
 - Trails act as solid walls that players must avoid
 - Trails do not fade over time
-- Collision with trails results in elimination
+- Collision with trails results in bike explosion
 - Optional setting to keep trails on the grid after a bike explodes, increasing difficulty
 
 ### Movement & Controls
-- WASD/Arrow keys for directional control
-- Smooth, physics-based movement using ThreeJS
-- Quick turning mechanics for tactical maneuvers
-- Optional boost mechanic with cooldown
+- Left/Right arrow keys for directional control (90° turns)
+- Touch controls for mobile devices
+- Smooth, grid-based movement using Three.js
+- Constant forward motion
 
 ### AI Opponents
-- Three AI-controlled opponents per match
-- Dynamic AI behavior patterns and strategies
-- AI opponents use pathfinding to avoid trails
+- Up to 3 AI-controlled opponents
+- Configurable difficulty 
+- AI opponents use collision avoidance strategies
 
-## Technical Architecture
-### 3D Graphics (ThreeJS)
-- Low-poly art style for optimal performance
-- Dynamic lighting system for trails
-- Particle effects for explosions and boosts
-- LOD implementation for distant objects
-
-### Networking
-- Client-server architecture with authoritative server
-- Delta-compressed updates for efficient bandwidth usage
-- Client-side prediction and reconciliation
-- Room-based instancing for scalability
-
-### Game Logic
-- Client-side game processing
-- Deterministic AI decision making
-- State management for single player progression
-- Local save system for player stats and preferences
-
-## Game Modes
-### Classic Arena
-- Player versus 3 AI opponents
-- Enclosed arena with decreasing playable area
-- Match duration: 3-5 minutes
+### Round System
+- Multiple rounds of gameplay
+- Score tracking across rounds
 - Progressive difficulty system
+- Winner determined by total score
 
-### Challenge Mode
-- Specialized scenarios against unique AI behaviors
-- Mission-based objectives
-- Unlockable content through progression
-- Time trials and survival challenges
+## Technical Implementation
+
+### 3D Graphics (Three.js)
+- Grid-based arena with neon aesthetics
+- Dynamic lighting system for trails
+- Particle effects for explosions
+- Custom camera system with spectator mode
+
+### Game Architecture
+- Component-based architecture
+- Modular code organization
+- Client-side game processing
+- State management for game progression
+
+### Physics and Collision
+- Grid-based collision detection
+- Real-time collision response
+- Multiple collision types (wall, trail, bike)
+
+## Game Features
+
+### Camera System
+- Follow camera for player bike
+- Spectator mode after player death
+- Camera switching in ghost mode
+
+### Interface Elements
+- Radar map showing position of all bikes
+- Score display and round information
+- Minimalist HUD design
+- Touch controls for mobile devices
+
+### Audio System
+- Background music
+- Sound effects for game events
+- Spatial audio for explosions and bikes
 
 ## Visual Design
+
 ### Environment
 - Cyber-grid floor with neon accents
-- Dynamic background with particle effects
+- Dark background with grid visualization
 - Minimal obstacles for pure gameplay focus
 - Color scheme: Dark base with bright neon highlights
 
-### Player Vehicles
-- Sleek, futuristic light cycle design
-- Unique color customization options
-- Trail effects matching vehicle color
-- Visual feedback for speed and status
-
-## Sound Design
-### Music
-- Synthwave/electronic background music
-- Dynamic intensity based on game state
-- Menu and in-game distinct themes
-
-### Sound Effects
-- Engine sounds with doppler effect
-- Collision and explosion effects
-- Power-up and elimination sounds
-- Spatial audio implementation
+### Player Bikes
+- Distinct colored light cycles for each player
+- Bright neon trails matching bike color
+- Explosion effects upon collision
+- Visual feedback for turning and movement
 
 ## UI/UX
+
 ### In-Game HUD
 - Minimalist design
-- Speed indicator
-- Mini-map showing player positions
-- Boost meter (if applicable)
+- Score and round information
+- Radar map showing player positions
+- Countdown timers for round start
 
 ### Menus
 - Clean, neon-styled interface
-- Quick play and custom room options
-- Basic player statistics
-- Settings for graphics and controls
+- Start game and settings options
+- Game over screen with results
+- Round transition screens
 
-## Technical Requirements
-### Client-Side
-- Modern browser with WebGL support
-- Offline gameplay support
-- Minimum 30 FPS target
-- Responsive design for various screen sizes
+## Game Settings
 
-### Data Management
-- Local storage for game progress
-- Achievement tracking
-- Performance metrics
-- Settings persistence
+### Configurable Options
+- Self-collision toggle (whether bikes can collide with their own trails)
+- Trail delay (time before trails start appearing)
+- Persistent trails (option to keep trails after a bike explodes)
+- Debug mode for development
 
-## Future Considerations
-### Planned Features
-- Additional AI personalities
-- More single-player challenges
-- Cosmetic unlockables
-- Achievement system
-- Leaderboards for challenge modes
+## Current Implementation Status
 
-### Performance Optimization
-- AI computation efficiency
-- Physics optimization
-- Asset loading improvements
-- Memory management
+### Implemented Features
+- Core bike movement and controls
+- Trail generation system
+- Collision detection and response
+- AI opponents with basic avoidance
+- Round management system
+- Radar map for player tracking
+- Score tracking
+- Explosion effects
+- Ghost/spectator mode
+- Mobile touch controls
+
+### Planned Enhancements
+- Additional game modes (time trial, survival)
+- More advanced AI behaviors
+- Enhanced visual effects
+- Sound design improvements
+- Performance optimizations
 
 ## Development Priorities
-1. Core movement and collision systems
-2. AI opponent implementation
-3. Basic game mode implementation
-4. Visual and audio polish
-5. Challenge mode content
+1. User experience refinements
+2. Mobile control improvements
+3. Visual and audio polish
+4. Additional game modes
+5. Performance optimization
+
+This document will be updated as development progresses.
