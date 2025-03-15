@@ -63,7 +63,10 @@ class Game {
         const switchCamera = document.getElementById('switch-camera');
         if (switchCamera) {
             switchCamera.addEventListener('click', () => {
-                this.cycleGhostCamera();
+                // Only allow camera switching if player's bike is not active
+                if (!this.bikes[0].active) {
+                    this.cycleGhostCamera();
+                }
             });
         }
     }
@@ -99,7 +102,7 @@ class Game {
 
         // Add ghost camera controls
         document.addEventListener('keydown', (e) => {
-            if (this.cameraManager.isGhostMode() && e.key === 'Tab') {
+            if (this.cameraManager.isGhostMode() && e.key === 'Tab' && !this.bikes[0].active) {
                 e.preventDefault();
                 this.cycleGhostCamera();
             }
@@ -401,8 +404,11 @@ class Game {
     }
 
     cycleGhostCamera() {
-        const activeBikes = this.bikes.filter(bike => bike.active);
-        this.cameraManager.cycleGhostCamera(activeBikes);
+        // Only allow camera cycling if player's bike (index 0) is not active
+        if (!this.bikes[0].active) {
+            const activeBikes = this.bikes.filter(bike => bike.active);
+            this.cameraManager.cycleGhostCamera(activeBikes);
+        }
     }
 
     getActivePlayerBike() {

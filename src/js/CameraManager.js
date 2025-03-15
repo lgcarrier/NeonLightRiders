@@ -34,14 +34,20 @@ class CameraManager {
     }
 
     getActivePlayerBike(bikes, playerBikeIndex = 0) {
-        if (!this.ghostMode) {
+        // Always follow player's bike if it's active, regardless of ghost mode
+        if (bikes[playerBikeIndex].active) {
             return bikes[playerBikeIndex];
         }
 
-        const activeBikes = bikes.filter(bike => bike.active);
-        if (activeBikes.length === 0) return bikes[playerBikeIndex];
+        // Only use ghost mode if player's bike is not active
+        if (this.ghostMode) {
+            const activeBikes = bikes.filter(bike => bike.active);
+            if (activeBikes.length === 0) return bikes[playerBikeIndex];
 
-        return activeBikes[this.ghostCameraIndex % activeBikes.length];
+            return activeBikes[this.ghostCameraIndex % activeBikes.length];
+        }
+
+        return bikes[playerBikeIndex];
     }
 
     enableGhostMode() {
