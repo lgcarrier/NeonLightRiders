@@ -1,4 +1,9 @@
 import Game from './game.js';
+import Bike from './Bike.js';
+import AI from './ai.js';
+
+// Use THREE from the global scope
+const THREE = window.THREE;
 
 class TestLevel extends Game {
     constructor(config = {}) {

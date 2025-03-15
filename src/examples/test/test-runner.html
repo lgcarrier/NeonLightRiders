@@ -1,25 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>NeonLightRiders - Test Runner</title>
+    <title>NeonLightRiders - Test Runner (Standalone)</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <!-- Load all dependencies in the correct order -->
-    <script src="../js/RoundManager.js" type="module"></script>
-    <script src="../js/GameEndScreen.js" type="module"></script>
-    <script src="../js/audio.js" type="module"></script>
-    <script src="../js/controls.js" type="module"></script>
-    <script src="../js/explosion.js" type="module"></script>
-    <script src="../js/radar.js" type="module"></script>
-    <script src="../js/Bike.js" type="module"></script>
-    <script src="../js/Trail.js" type="module"></script>
-    <script src="../js/CollisionManager.js" type="module"></script>
-    <script src="../js/CameraManager.js" type="module"></script>
-    <script src="../js/Scene.js" type="module"></script>
-    <script src="../js/ScoreManager.js" type="module"></script>
-    <script src="../js/ai.js" type="module"></script>
-    <script src="../js/game.js" type="module"></script>
-    <script src="../js/TestLevel.js" type="module"></script>
-    <script src="./TestLevels.js" type="module"></script>
+    <script src="./TestLevel.js"></script>
+    <script src="./TestLevels.js"></script>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -81,7 +66,7 @@
     </style>
 </head>
 <body>
-    <h1>NeonLightRiders - Test Runner</h1>
+    <h1>NeonLightRiders - Test Runner (Standalone)</h1>
     
     <div class="test-container">
         <button id="run-all" class="test-button run-all">Run All Tests</button>
@@ -96,11 +81,8 @@
     <h2>Test Results:</h2>
     <div id="test-results">No tests run yet</div>
     
-    <script type="module">
-        import { TestLevels, TestRunner } from './TestLevels.js';
-        
-        // Wait for DOM to be fully loaded
-        window.addEventListener('DOMContentLoaded', () => {
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
             const gameContainer = document.getElementById('game-container');
             const resultsContainer = document.getElementById('test-results');
             let currentTest = null;
