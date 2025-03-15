@@ -35,7 +35,7 @@ class Explosion {
     }
 
     createShockwave() {
-        const geometry = new THREE.RingGeometry(1, 4, 32); // Doubled size
+        const geometry = new THREE.RingGeometry(0.5, 2, 32); // Reduced size from (1, 4)
         const material = new THREE.MeshBasicMaterial({
             color: this.color,
             transparent: true,
@@ -66,8 +66,8 @@ class Explosion {
             particle.scale.multiplyScalar(0.97);
         });
 
-        // Even more dramatic shockwave expansion
-        this.shockwave.scale.addScalar(0.6); // Increased from 0.4
+        // Reduced shockwave expansion rate
+        this.shockwave.scale.addScalar(0.3); // Reduced from 0.6
         this.shockwave.material.opacity = 1 * (1 - progress);
 
         return true;

@@ -9,15 +9,19 @@ class Controls {
         const leftButton = document.getElementById('left-button');
         const rightButton = document.getElementById('right-button');
 
-        leftButton.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            this.game.turnLeft(0); 
-        });
+        if (leftButton) {
+            leftButton.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                this.game.turnLeft(0); 
+            });
+        }
 
-        rightButton.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            this.game.turnRight(0); 
-        });
+        if (rightButton) {
+            rightButton.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                this.game.turnRight(0); 
+            });
+        }
     }
 
     setupKeyboardControls() {

@@ -81,6 +81,45 @@ class Trail {
     getTrails() {
         return this.trails;
     }
+
+    addStaticTrail(startPoint, endPoint, color = 0xffffff) {
+        const material = new THREE.LineBasicMaterial({ color });
+        const points = [
+            new THREE.Vector3(startPoint.x, 0.5, startPoint.z),
+            new THREE.Vector3(endPoint.x, 0.5, endPoint.z)
+        ];
+        const geometry = new THREE.BufferGeometry().setFromPoints(points);
+        const line = new THREE.Line(geometry, material);
+        this.scene.add(line);
+        
+        // Update collision grid with this static trail
+        const gridPoints = this.getGridPointsAlongLine(startPoint, endPoint);
+        gridPoints.forEach(point => {
+            this.collisionManager?.addCollisionPoint(point.x, point.z, -1); // -1 indicates static obstacle
+        });
+        
+        return line;
+    }
+
+    getGridPointsAlongLine(start, end) {
+        // Calculate points along line at grid cell intervals
+        const points = [];
+        const distance = Math.sqrt(
+            Math.pow(end.x - start.x, 2) + 
+            Math.pow(end.z - start.z, 2)
+        );
+        const steps = Math.ceil(distance / this.gridCellSize);
+        
+        for (let i = 0; i <= steps; i++) {
+            const t = i / steps;
+            points.push({
+                x: start.x + t * (end.x - start.x),
+                z: start.z + t * (end.z - start.z)
+            });
+        }
+        
+        return points;
+    }
 }
 
 export default Trail; 

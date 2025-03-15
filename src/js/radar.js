@@ -1,6 +1,26 @@
 class RadarMap {
     constructor() {
         this.canvas = document.getElementById('radarCanvas');
+        
+        // If the canvas doesn't exist, create it
+        if (!this.canvas) {
+            this.canvas = document.createElement('canvas');
+            this.canvas.id = 'radarCanvas';
+            
+            // Position the radar in the top-right corner
+            this.canvas.style.position = 'absolute';
+            this.canvas.style.top = '10px';
+            this.canvas.style.right = '10px';
+            
+            // If we're in a test environment, append to the game-container
+            const gameContainer = document.getElementById('game-container');
+            if (gameContainer) {
+                gameContainer.appendChild(this.canvas);
+            } else {
+                document.body.appendChild(this.canvas);
+            }
+        }
+        
         this.ctx = this.canvas.getContext('2d');
         this.size = 150;
         this.canvas.width = this.size;

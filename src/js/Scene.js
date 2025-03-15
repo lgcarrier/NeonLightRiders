@@ -1,3 +1,6 @@
+// Remove the import since THREE is already loaded via script tag
+// import * as THREE from 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.module.js';
+
 class Scene {
     constructor() {
         this.scene = new THREE.Scene();
@@ -14,8 +17,26 @@ class Scene {
             0.1,
             1000
         );
+        
+        // Get the canvas element or create one if it doesn't exist
+        let canvas = document.getElementById('gameCanvas');
+        if (!canvas) {
+            canvas = document.createElement('canvas');
+            canvas.id = 'gameCanvas';
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            
+            // If we're in a test environment, append to the game-container
+            const gameContainer = document.getElementById('game-container');
+            if (gameContainer) {
+                gameContainer.appendChild(canvas);
+            } else {
+                document.body.appendChild(canvas);
+            }
+        }
+        
         this.renderer = new THREE.WebGLRenderer({
-            canvas: document.getElementById('gameCanvas'),
+            canvas: canvas,
             antialias: true
         });
         this.renderer.setSize(window.innerWidth, window.innerHeight);

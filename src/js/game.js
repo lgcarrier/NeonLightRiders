@@ -13,7 +13,7 @@ import Scene from './Scene.js';
 import ScoreManager from './ScoreManager.js';
 
 class Game {
-    constructor() {
+    constructor(options = {}) {
         this.initialized = false;
         this.gameActive = false;
         this.roundActive = false;
@@ -35,24 +35,37 @@ class Game {
             allowSelfCollision: false, // Set to true to allow bikes to collide with their own trails
             trailDelay: 1000, // Delay in ms before trail creation starts
             debug: false, // Enable debug mode
-            trailSegmentSize: 1 // Size of trail segments
+            trailSegmentSize: 1, // Size of trail segments
+            ...options.gameSettings
         };
         
-        this.bindEventListeners();
+        // Only bind event listeners if not in test mode
+        if (options.skipEventListeners !== true) {
+            this.bindEventListeners();
+        }
     }
 
     bindEventListeners() {
-        document.getElementById('restart-button').addEventListener('click', () => {
-            this.restartGame();
-        });
+        const restartButton = document.getElementById('restart-button');
+        if (restartButton) {
+            restartButton.addEventListener('click', () => {
+                this.restartGame();
+            });
+        }
 
-        document.getElementById('restart-game').addEventListener('click', () => {
-            this.restartGame();
-        });
+        const restartGame = document.getElementById('restart-game');
+        if (restartGame) {
+            restartGame.addEventListener('click', () => {
+                this.restartGame();
+            });
+        }
 
-        document.getElementById('switch-camera').addEventListener('click', () => {
-            this.cycleGhostCamera();
-        });
+        const switchCamera = document.getElementById('switch-camera');
+        if (switchCamera) {
+            switchCamera.addEventListener('click', () => {
+                this.cycleGhostCamera();
+            });
+        }
     }
 
     init() {
@@ -225,23 +238,28 @@ class Game {
         // Show destruction message and delayed ghost mode for player
         if (bikeIndex === 0) {
             const destructionMsg = document.getElementById('destruction-message');
-            destructionMsg.classList.remove('hidden');
-            destructionMsg.classList.add('visible');
+            if (destructionMsg) {
+                destructionMsg.classList.remove('hidden');
+                destructionMsg.classList.add('visible');
 
-            // Delay ghost mode activation
-            setTimeout(() => {
-                this.cameraManager.enableGhostMode();
-                // Find first active bike to follow
-                const firstActiveBike = this.bikes.findIndex((b, i) => i > 0 && b.active);
-                if (firstActiveBike !== -1) {
-                    this.cameraManager.ghostCameraIndex = this.bikes.filter(b => b.active).indexOf(this.bikes[firstActiveBike]);
-                }
-                // Show switch camera button
-                document.getElementById('switch-camera').classList.add('visible');
-                // Hide destruction message
-                destructionMsg.classList.remove('visible');
-                destructionMsg.classList.add('hidden');
-            }, 5000); 
+                // Delay ghost mode activation
+                setTimeout(() => {
+                    this.cameraManager.enableGhostMode();
+                    // Find first active bike to follow
+                    const firstActiveBike = this.bikes.findIndex((b, i) => i > 0 && b.active);
+                    if (firstActiveBike !== -1) {
+                        this.cameraManager.ghostCameraIndex = this.bikes.filter(b => b.active).indexOf(this.bikes[firstActiveBike]);
+                    }
+                    // Show switch camera button
+                    const switchCameraButton = document.getElementById('switch-camera');
+                    if (switchCameraButton) {
+                        switchCameraButton.classList.add('visible');
+                    }
+                    // Hide destruction message
+                    destructionMsg.classList.remove('visible');
+                    destructionMsg.classList.add('hidden');
+                }, 5000); 
+            }
         }
 
         this.updatePlayerCount();
@@ -290,7 +308,11 @@ class Game {
         this.roundManager.startNewRound().then(() => {
             // Reset the game state for new round
             this.trailManager.clearAllTrails();
+            
+            // Properly clean up all explosions before clearing the array
+            this.explosions.forEach(explosion => explosion.cleanup());
             this.explosions = [];
+            
             this.cameraManager.disableGhostMode();
 
             // Reset bikes to starting positions
@@ -325,7 +347,10 @@ class Game {
 
     updatePlayerCount() {
         const activePlayers = this.bikes.filter(bike => bike.active).length;
-        document.getElementById('players-value').textContent = activePlayers;
+        const playersValueElement = document.getElementById('players-value');
+        if (playersValueElement) {
+            playersValueElement.textContent = activePlayers;
+        }
     }
 
     restartGame() {
@@ -337,21 +362,40 @@ class Game {
         this.bikes.forEach(bike => bike.remove());
         this.bikes = [];
         this.ais = [];
+        
+        // Properly clean up all explosions before clearing the array
+        this.explosions.forEach(explosion => explosion.cleanup());
         this.explosions = []; 
+        
         this.cameraManager.disableGhostMode();
 
         // Hide UI elements
-        document.getElementById('switch-camera').classList.remove('visible');
-        document.getElementById('destruction-message').classList.remove('visible');
-        document.getElementById('destruction-message').classList.add('hidden');
+        const switchCameraButton = document.getElementById('switch-camera');
+        if (switchCameraButton) {
+            switchCameraButton.classList.remove('visible');
+        }
+        
+        const destructionMsg = document.getElementById('destruction-message');
+        if (destructionMsg) {
+            destructionMsg.classList.remove('visible');
+            destructionMsg.classList.add('hidden');
+        }
 
         this.setupGame();
         this.updatePlayerCount();
         this.roundManager = new RoundManager(); // This resets to round 1
-        document.getElementById('round-value').textContent = '1/7'; // Update display
+        
+        const roundValueElement = document.getElementById('round-value');
+        if (roundValueElement) {
+            roundValueElement.textContent = '1/7'; // Update display
+        }
+        
         this.roundStarted = true;
 
-        document.getElementById('game-over').classList.add('hidden');
+        const gameOverElement = document.getElementById('game-over');
+        if (gameOverElement) {
+            gameOverElement.classList.add('hidden');
+        }
     }
 
     cycleGhostCamera() {
@@ -444,9 +488,5 @@ class Game {
     }
 }
 
-// Initialize game
-window.game = new Game();
-
-document.addEventListener('DOMContentLoaded', () => {
-    window.game.init();
-});
+export { Game };
+export default Game;
